@@ -1,10 +1,10 @@
 {
-  "name": "My First Saulteaux Words — GBA Art Preview",
-  "short_name": "Saulteaux Art",
-  "start_url": "./",
-  "display": "fullscreen",
+  "name": "Tatawaw Teachings — My First Saulteaux Words",
+  "short_name": "Tatawaw Teachings",
+  "start_url": "./saulteaux-game-shell.html",
+  "display": "standalone",
+  "background_color": "#082f49",
+  "theme_color": "#0b4252",
   "orientation": "any",
-  "background_color": "#052b39",
-  "theme_color": "#06343d",
   "icons": []
 }
