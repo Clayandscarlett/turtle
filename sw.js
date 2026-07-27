@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tatawaw-saulteaux-v3';
+const CACHE_NAME = 'tatawaw-saulteaux-v4-standalone';
 const ASSETS = [
   './index.html',
   './saulteaux-game-shell.html',

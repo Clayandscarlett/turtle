@@ -1,7 +1,7 @@
 {
   "name": "Tatawaw Teachings — My First Saulteaux Words",
   "short_name": "Tatawaw Teachings",
-  "start_url": "./saulteaux-game-shell.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#082f49",
   "theme_color": "#0b4252",

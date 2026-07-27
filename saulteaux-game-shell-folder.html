@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#06343d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>Tatawaw Teachings — My First Saulteaux Words</title>
+  <style>
+    :root { --ink:#102c32; --cream:#fff1c7; --gold:#f3c35c; --deep:#052b39; --panel:rgba(4,28,36,.9); --line:rgba(255,241,199,.62); --berry:#8f4150; }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html, body { width:100%; height:100%; margin:0; overflow:hidden; background:var(--deep); }
+    body { color:var(--cream); font-family:-apple-system,BlinkMacSystemFont,"Trebuchet MS",sans-serif; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; touch-action:none; }
+    button, canvas { font:inherit; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+    button { border:0; }
+    #app, #shell { position:fixed; inset:0; width:100%; height:100%; overflow:hidden; }
+    #shell { --control-dock-height:106px; }
+    #world-canvas { position:absolute; inset:0; display:block; width:100%; height:100%; image-rendering:pixelated; }
+    .vignette { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at center, transparent 48%, rgba(0,0,0,.22) 100%); }
+    .topbar { position:absolute; top:max(8px,env(safe-area-inset-top)); left:0; right:0; z-index:4; display:flex; align-items:flex-start; gap:8px; padding:8px 10px; pointer-events:none; }
+    .brand, .world-name { padding:7px 10px; border:2px solid var(--line); border-radius:10px; background:rgba(3,28,36,.82); font-weight:900; line-height:1.05; }
+    .brand { color:var(--gold); font-size:clamp(10px,2.2vw,16px); letter-spacing:.12em; }
+    .world-name { margin-left:auto; max-width:58%; color:var(--cream); text-align:right; font-size:clamp(10px,2vw,15px); }
+    #world-tabs { position:absolute; top:max(55px,calc(env(safe-area-inset-top) + 48px)); left:50%; z-index:5; display:flex; gap:6px; width:min(860px,calc(100% - 16px)); transform:translateX(-50%); overflow-x:auto; scrollbar-width:none; pointer-events:auto; }
+    #world-tabs::-webkit-scrollbar { display:none; }
+    .world-tab { flex:0 0 auto; padding:6px 9px; border:2px solid rgba(255,241,199,.58); border-radius:999px; color:var(--cream); background:rgba(4,28,36,.83); font-size:11px; font-weight:900; cursor:pointer; }
+    .world-tab.active { color:var(--ink); background:var(--gold); border-color:#fff4ce; }
+    #prompt { position:absolute; left:50%; bottom:calc(var(--control-dock-height) + env(safe-area-inset-bottom) + 24px); z-index:6; display:flex; align-items:center; gap:10px; width:min(590px,calc(100% - 20px)); padding:8px 10px; transform:translateX(-50%); border:3px solid var(--ink); border-radius:16px; color:var(--ink); background:rgba(255,241,199,.96); box-shadow:0 6px 0 rgba(0,0,0,.32); }
+    #eagle-head { flex:0 0 52px; width:52px; height:52px; border:2px solid #9a7438; border-radius:12px; overflow:hidden; background:#ff00ff; }
+    #eagle-head canvas { width:100%; height:100%; display:block; image-rendering:pixelated; }
+    #prompt-copy { min-width:0; line-height:1.05; }
+    #prompt-kicker { color:#316d73; font-size:10px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
+    #target-saulteau { margin-top:3px; overflow-wrap:anywhere; font-size:clamp(17px,4vw,25px); font-weight:1000; }
+    #target-english { margin-top:3px; overflow-wrap:anywhere; font-size:clamp(11px,2.5vw,15px); opacity:.76; }
+    #prompt-help { margin-left:auto; max-width:130px; font-size:10px; font-weight:800; text-align:right; opacity:.68; }
+    #status { position:absolute; left:50%; top:max(105px,calc(env(safe-area-inset-top) + 96px)); z-index:6; padding:6px 10px; border:2px solid rgba(255,241,199,.64); border-radius:999px; color:var(--cream); background:rgba(3,28,36,.78); font-size:11px; font-weight:900; transform:translateX(-50%); opacity:0; transition:opacity .18s ease; pointer-events:none; }
+    #status.show { opacity:1; }
+    #controls { position:absolute; left:0; right:0; bottom:calc(8px + env(safe-area-inset-bottom)); height:var(--control-dock-height); z-index:8; pointer-events:none; }
+    #dpad { position:absolute; left:max(16px,env(safe-area-inset-left)); bottom:2px; width:132px; height:108px; pointer-events:auto; }
+    .pad-button { position:absolute; width:42px; height:42px; display:grid; place-items:center; border:2px solid rgba(255,241,199,.84); border-radius:10px; color:var(--cream); background:rgba(4,28,36,.88); box-shadow:0 3px 0 rgba(0,0,0,.35); font-weight:1000; cursor:pointer; }
+    .pad-button:active, .pad-button.pressed { color:var(--ink); background:var(--gold); transform:translateY(2px); }
+    #up { left:45px; top:0; } #down { left:45px; bottom:0; } #left { left:0; top:33px; } #right { right:0; top:33px; }
+    #face-buttons { position:absolute; right:max(22px,env(safe-area-inset-right)); bottom:4px; width:132px; height:90px; transform:rotate(-18deg); transform-origin:50% 50%; pointer-events:auto; }
+    .face-button { position:absolute; width:58px; height:58px; border:3px solid rgba(255,241,199,.86); border-radius:50%; color:var(--cream); background:var(--berry); box-shadow:0 4px 0 rgba(0,0,0,.38); font-size:19px; font-weight:1000; cursor:pointer; }
+    #button-b { left:0; top:24px; } #button-a { right:0; top:0; background:#315c79; }
+    .face-button:active { color:var(--ink); background:var(--gold); transform:translateY(2px); }
+    #loading, #dedication { position:absolute; inset:0; z-index:20; display:grid; place-items:center; background:#061d2a; }
+    #loading { transition:opacity .45s ease,visibility .45s ease; }
+    #loading.hidden, #dedication.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+    .boot-card { width:min(590px,calc(100% - 34px)); text-align:center; }
+    .boot-title { color:#f8f1d0; font-family:Impact,"Arial Black",sans-serif; font-size:clamp(30px,9vw,70px); letter-spacing:.16em; line-height:.9; }
+    .boot-title span { display:block; margin-top:13px; color:#e3b94d; font-size:.46em; letter-spacing:.38em; }
+    .load-track { height:13px; margin:30px auto 12px; border:2px solid #f8f1d0; border-radius:999px; overflow:hidden; background:#0c3649; }
+    #load-fill { width:0; height:100%; background:linear-gradient(90deg,#e3b94d,#f7d879); transition:width .15s ease; }
+    #load-note { color:rgba(248,241,208,.78); font-size:12px; letter-spacing:.08em; }
+    #dedication { background:rgba(4,25,34,.86); padding:18px; opacity:1; transition:opacity .8s ease,visibility .8s ease; }
+    .scroll-paper { width:min(670px,100%); padding:clamp(25px,7vw,58px) clamp(22px,7vw,66px); border:7px solid #875d28; color:#2a2920; background:repeating-linear-gradient(0deg,#f7e6ac 0,#f7e6ac 4px,#f3dda0 5px,#f3dda0 6px); box-shadow:0 9px 0 rgba(0,0,0,.36); text-align:center; transform:rotate(-1deg); }
+    .scroll-kicker { color:#2e6870; font-size:clamp(10px,2.5vw,15px); font-weight:900; letter-spacing:.18em; text-transform:uppercase; }
+    .scroll-title { margin:18px 0 24px; color:#9b3f46; font-family:Impact,"Arial Black",sans-serif; font-size:clamp(30px,8vw,60px); line-height:.95; }
+    .scroll-dedication { font-size:clamp(15px,3.7vw,22px); font-weight:900; line-height:1.32; }
+    .scroll-hint { margin-top:24px; font-size:11px; opacity:.65; }
+    @media (orientation:landscape) and (max-height:540px) {
+      #world-tabs { top:max(52px,calc(env(safe-area-inset-top) + 42px)); }
+      #shell { --control-dock-height:74px; }
+      #prompt { bottom:calc(var(--control-dock-height) + env(safe-area-inset-bottom) + 19px); }
+      #controls { height:var(--control-dock-height); } #dpad { width:100px; height:78px; left:max(12px,env(safe-area-inset-left)); } #face-buttons { width:110px; height:70px; right:max(16px,env(safe-area-inset-right)); }
+      .pad-button { width:34px; height:34px; } #up{left:33px;} #down{left:33px;} #left,#right{top:22px;}
+      .face-button { width:46px; height:46px; } #button-b{top:16px;}
+    }
+  </style>
+</head>
+<body>
+  <main id="app" aria-label="Tatawaw Teachings Saulteaux reading game">
+    <section id="shell">
+      <canvas id="world-canvas" aria-label="Turtle Island game map"></canvas>
+      <div class="vignette"></div>
+      <header class="topbar"><div class="brand">TATAWAW TEACHINGS</div><div class="world-name" id="world-name">Water and Turtle Island</div></header>
+      <nav id="world-tabs" aria-label="Seven unlocked worlds"></nav>
+      <div id="status" role="status"></div>
+      <section id="prompt" aria-live="polite">
+        <div id="eagle-head"><canvas id="eagle-head-canvas" aria-hidden="true"></canvas></div>
+        <div id="prompt-copy"><div id="prompt-kicker">Eagle asks you to find</div><div id="target-saulteau">Loading…</div><div id="target-english"></div></div>
+        <div id="prompt-help">Move Makwa near the picture, then press A.</div>
+      </section>
+      <section id="controls" aria-label="Gameboy controls">
+        <div id="dpad"><button class="pad-button" id="up" aria-label="Move up">▲</button><button class="pad-button" id="left" aria-label="Move left">◀</button><button class="pad-button" id="right" aria-label="Move right">▶</button><button class="pad-button" id="down" aria-label="Move down">▼</button></div>
+        <div id="face-buttons"><button class="face-button" id="button-b" aria-label="B button">B</button><button class="face-button" id="button-a" aria-label="A button">A</button></div>
+      </section>
+    </section>
+    <section id="loading" aria-live="polite"><div class="boot-card"><div class="boot-title">TATAWAW<span>TEACHINGS</span></div><div class="load-track"><div id="load-fill"></div></div><div id="load-note">Preparing the island…</div></div></section>
+    <section id="dedication" aria-label="Dedication scroll"><div class="scroll-paper"><div class="scroll-kicker">A quiet reading journey</div><div class="scroll-title">My first<br>Saulteaux words</div><div class="scroll-dedication">Dedicated to my wife Scarlett<br>&amp; father-in-law Magnus</div><div class="scroll-hint">Tap anywhere to begin</div></div></section>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const ROOT = 'saulteaux-preview/assets/';
+      // The normal folder build leaves these empty. The standalone build replaces
+      // them with the same artwork and roster as data URLs/text so a single-file
+      // preview still has a complete playable game.
+      const INLINE_ASSETS = {};
+      const INLINE_ROSTER = '';
+      const MAP_W = 1672, MAP_H = 941, ROUND_SIZE = 6;
+      const WORLD_TITLES = ['Water and Turtle Island','Forest and Meadow','Animal Trail','Wetlands and Sky','Berry Meadow and Garden','Home, Camp and Craft','People, Seasons and Teachings'];
+      const CROPS = [[0,222,560,315],[200,70,560,315],[620,20,560,315],[930,160,560,315],[200,380,560,315],[520,220,560,315],[520,460,560,315]];
+      const PALETTES = [['#0b3b55','#167b83','#285a43','#80a95d'],['#153d45','#2e6b56','#6d863f','#c5a955'],['#152d3d','#35614e','#8a713d','#bd9951'],['#173851','#458c9a','#b8c8a0','#f0d481'],['#3c3341','#72604d','#8e4e4e','#ddb15c'],['#243841','#605345','#9d784e','#ead59d'],['#243345','#50716b','#ad6d4f','#f1cf87']];
+      const canvas = document.getElementById('world-canvas');
+      const ctx = canvas.getContext('2d', { alpha:false });
+      const loading = document.getElementById('loading');
+      const dedication = document.getElementById('dedication');
+      const loadFill = document.getElementById('load-fill');
+      const loadNote = document.getElementById('load-note');
+      const worldTabs = document.getElementById('world-tabs');
+      const worldName = document.getElementById('world-name');
+      const targetSaulteau = document.getElementById('target-saulteau');
+      const targetEnglish = document.getElementById('target-english');
+      const promptKicker = document.getElementById('prompt-kicker');
+      const promptHelp = document.getElementById('prompt-help');
+      const eagleHeadCanvas = document.getElementById('eagle-head-canvas');
+      const status = document.getElementById('status');
+      const keys = { left:false, right:false, up:false, down:false };
+      let width = 960, height = 540, dpr = 1, elapsed = 0, last = 0;
+      let roster = [], currentWorld = 0, targets = [], targetIndex = 0, found = new Set();
+      let mode = 'find', helpActive = false, helpStarted = 0, introDone = false;
+      let lastActionAt = 0;
+      let camera = { x:0,y:222,w:560,h:315 }, cameraFrom = {...camera}, cameraTo = {...camera}, cameraStart = 0;
+      let makwa = { x:280, y:390 }, mapImage, makwaSheet, eagleSheet, eagleHeadSheet;
+      let waveFrames = [], atlases = [];
+      const ART = new Map();
+      const positions = [];
+      const normalize = (value) => String(value || '').toLowerCase().replace(/[.,]/g,'').replace(/\s+/g,' ').trim();
+      function addArt(names, atlas, cell) { names.forEach(name => ART.set(normalize(name), { atlas, cell })); }
+      addArt(['A Star','Stars'],0,0); addArt(['Arrow'],0,1); addArt(['A Raven','Ravens'],0,2); addArt(['Puppies'],0,3); addArt(['Arrowhead'],0,4);
+      addArt(['A Beaver'],0,5); addArt(['Baby Beaver'],0,6); addArt(['squirrel'],0,7); addArt(['Buttons'],0,8); addArt(['tools'],0,9); addArt(['Bats'],0,10); addArt(['Berry basket'],0,11); addArt(['A Paddle'],0,12); addArt(['A mug','Camp mug'],0,13); addArt(['A pot','Cooking pot'],0,14); addArt(['A mat','Woven mat'],0,15); addArt(['Spruce cone'],0,16); addArt(['Birch leaf'],0,17); addArt(['Smooth stone'],0,18); addArt(['Cattail'],0,19);
+      addArt(['Wooden bench','Seats or places to sit'],1,0); addArt(['Small weaving loom','weaving'],1,1); addArt(['Braided cord','braids'],1,2); addArt(['Pronghorn'],1,3); addArt(['Deer'],1,4); addArt(['Teepee poles'],1,5); addArt(['Canoe paddle','Shovels or (paddles for rowing)'],1,6); addArt(['Shovel'],1,7); addArt(['Moccasin'],1,8); addArt(['A sock','More than one sock'],1,9); addArt(['Rocks (plural of asinēy-rock)'],1,10); addArt(['Pebbles, Rocks'],1,11); addArt(['Mountains'],1,12); addArt(['A green tree'],1,13); addArt(['A pail, A bucket'],1,14); addArt(['Flour'],1,15); addArt(['A potato','Potatoes'],1,16); addArt(['A piece of raw meat.'],1,17); addArt(['A riding saddle.'],1,18); addArt(['A rug'],1,19);
+      addArt(['Dogs.'],2,0); addArt(['April - Frog Moon'],2,1); addArt(['Clothing'],2,2); addArt(['A baby frog'],2,3); addArt(['A raspberry'],2,4); addArt(['An Axe'],2,5); addArt(['A fork.'],2,6); addArt(['A television'],2,7); addArt(['A small teaspoon.'],2,8); addArt(['Spoons'],2,9); addArt(['An Ant'],2,10); addArt(['A Louse'],2,11); addArt(['High Water'],2,12); addArt(['A firehall building'],2,13); addArt(['November - Frost Moon'],2,14); addArt(['A crow'],2,15); addArt(['Pepper'],2,16); addArt(['Porcupines.'],2,17); addArt(['It is smokey.'],2,18); addArt(['A small wolverine or a young one'],2,19);
+      addArt(['October - Freezing Moon'],3,0); addArt(['A skirt'],3,1); addArt(['Skirts'],3,2); addArt(['A pair of shorts'],3,3); addArt(['Eagles'],3,4); addArt(['Baby Fish'],3,5); addArt(['fish (one fish)'],3,6); addArt(['fish - more than one fish (plural)'],3,7); addArt(['It is cold.'],3,8); addArt(['School'],3,9); addArt(['A radio'],3,10); addArt(['A watermelon'],3,11); addArt(['Pigs'],3,12); addArt(['Snow'],3,13); addArt(['Wolf'],3,14); addArt(['Baby wolves'],3,15); addArt(['A corn'],3,16); addArt(['Loon'],3,17); addArt(['Bug or worm'],3,18); addArt(['A Catholic concept'],3,19);
+
+      function assetUrl(path) { return INLINE_ASSETS[path] || path; }
+      function image(path) { return new Promise((resolve,reject) => { const img = new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=assetUrl(path); }); }
+      function chroma(img) {
+        const c=document.createElement('canvas'); c.width=img.naturalWidth; c.height=img.naturalHeight; const cctx=c.getContext('2d'); cctx.drawImage(img,0,0); const data=cctx.getImageData(0,0,c.width,c.height); for(let i=0;i<data.data.length;i+=4){const r=data.data[i],g=data.data[i+1],b=data.data[i+2];if(r>220&&g<90&&b>190){data.data[i+3]=0;}} cctx.putImageData(data,0,0); return c;
+      }
+      async function loadAssets() {
+        loadNote.textContent='Loading Turtle Island…'; loadFill.style.width='18%';
+        const paths=[`${ROOT}master/turtle-island-gba-style.png`,`${ROOT}characters/makwa-walk-sheet-gba.png`,`${ROOT}characters/eagle-flying-sheet-gba.png`,`${ROOT}characters/eagle-prompt-sheet-gba.png`];
+        for(let i=1;i<=4;i++) paths.push(`${ROOT}objects/object-atlas-0${i}-gba.png`);
+        for(let i=0;i<8;i++) paths.push(`${ROOT}water/frames/frame-${String(i).padStart(2,'0')}.png`);
+        const imgs=await Promise.all(paths.map(image)); mapImage=imgs[0]; makwaSheet=chroma(imgs[1]); eagleSheet=chroma(imgs[2]); eagleHeadSheet=chroma(imgs[3]); atlases=imgs.slice(4,8).map(chroma); waveFrames=imgs.slice(8); drawEagleHead(); loadFill.style.width='66%'; loadNote.textContent='Reading the word garden…';
+        try {
+          if (INLINE_ROSTER) roster=csvParse(INLINE_ROSTER);
+          else { const response=await fetch('saulteaux-300-word-roster.csv',{cache:'no-store'}); roster=csvParse(await response.text()); }
+        } catch (e) { roster=fallbackRoster(); }
+        loadFill.style.width='100%'; loadNote.textContent=roster.length>=300?'Three hundred source-linked entries ready.':'Offline entries ready.';
+      }
+      function csvParse(text) { const lines=text.trim().split(/\r?\n/); if(!lines.length)return[]; const parse=(line)=>{const out=[];let v='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'&&line[i+1]==='"'){v+='"';i++;}else if(ch==='"')q=!q;else if(ch===','&&!q){out.push(v);v='';}else v+=ch;}out.push(v);return out;}; const head=parse(lines[0]);return lines.slice(1).map(line=>{const row={};parse(line).forEach((v,i)=>row[head[i]]=v);return row;}); }
+      function fallbackRoster() { return [{world:'1',world_title:WORLD_TITLES[0],entry_role:'land/season',english_gloss:'A Star',saulteau_source_form:'ācahkōs'},{world:'1',world_title:WORLD_TITLES[0],entry_role:'object',english_gloss:'Arrow',saulteau_source_form:'acosis'},{world:'3',world_title:WORLD_TITLES[2],entry_role:'living being',english_gloss:'Puppies',saulteau_source_form:'Acimosisak'}]; }
+      function resize() { const rect=canvas.getBoundingClientRect(); dpr=Math.min(window.devicePixelRatio||1,2); width=Math.max(320,Math.round(rect.width*dpr)); height=Math.max(240,Math.round(rect.height*dpr)); canvas.width=width; canvas.height=height; render(); }
+      function showStatus(text) { status.textContent=text; status.classList.add('show'); clearTimeout(showStatus.timer); showStatus.timer=setTimeout(()=>status.classList.remove('show'),1900); }
+      function worldRows(index) { const rows=roster.filter(row=>String(row.world)===String(index+1)&&row.entry_role!=='teaching card'); return rows.length?rows:roster; }
+      function targetPosition(index, count) { const crop=CROPS[currentWorld]; const col=index%3, row=Math.floor(index/3); return { x:crop[0]+crop[2]*(.2+col*.3), y:crop[1]+crop[3]*(.34+row*.28) }; }
+      function selectWorld(index) { currentWorld=index; const rows=worldRows(index); targets=rows.slice(0,ROUND_SIZE); targetIndex=0; found=new Set(); mode='find'; helpActive=false; helpStarted=performance.now(); const c=CROPS[index]; cameraFrom={...camera}; cameraTo={x:c[0],y:c[1],w:c[2],h:c[3]}; cameraStart=performance.now(); makwa={x:c[0]+c[2]*.5,y:c[1]+c[3]*.62}; worldName.textContent=WORLD_TITLES[index]; [...worldTabs.children].forEach((b,i)=>b.classList.toggle('active',i===index)); updatePrompt(); showStatus('World ready — all seven trails are open'); }
+      function buildWorldTabs() { WORLD_TITLES.forEach((title,i)=>{const b=document.createElement('button');b.className='world-tab';b.type='button';b.textContent=`${i+1} · ${title}`;b.addEventListener('click',()=>selectWorld(i));worldTabs.appendChild(b);}); }
+      function updatePrompt() { const row=targets[targetIndex]; if(mode==='quiz'){promptKicker.textContent='Quiz — find this Saulteaux word';targetSaulteau.textContent=row?row.saulteau_source_form:'Mācihtāw';targetEnglish.textContent='';promptHelp.textContent='The eagle is waiting above. Find the picture, then press A.';return;} if(!row){promptKicker.textContent='World complete';targetSaulteau.textContent='māci-nēhiyawēwin';targetEnglish.textContent='Choose any of the seven open worlds';promptHelp.textContent='All worlds remain unlocked.';return;} promptKicker.textContent=targetIndex?'Find the next picture':'Eagle asks you to find';targetSaulteau.textContent=row.saulteau_source_form||'—';targetEnglish.textContent=row.english_gloss||'';promptHelp.textContent=helpActive?'The eagle is showing the way.':'Move Makwa near the picture, then press A.'; }
+      function mapView(now) { const progress=Math.min(1,(now-cameraStart)/850); const eased=progress<1?(1-Math.cos(progress*Math.PI))/2:1; return {x:cameraFrom.x+(cameraTo.x-cameraFrom.x)*eased,y:cameraFrom.y+(cameraTo.y-cameraFrom.y)*eased,w:cameraFrom.w+(cameraTo.w-cameraFrom.w)*eased,h:cameraFrom.h+(cameraTo.h-cameraFrom.h)*eased}; }
+      function screenPoint(point, view) { const s=Math.min(width/view.w,height/view.h); const dw=view.w*s,dh=view.h*s; return {x:(width-dw)/2+(point.x-view.x)*s,y:(height-dh)/2+(point.y-view.y)*s,s}; }
+      function drawMap(view) { const s=Math.min(width/view.w,height/view.h); const dw=view.w*s,dh=view.h*s,dx=(width-dw)/2,dy=(height-dh)/2; ctx.fillStyle=PALETTES[currentWorld][0];ctx.fillRect(0,0,width,height);ctx.imageSmoothingEnabled=false;ctx.drawImage(mapImage,view.x,view.y,view.w,view.h,dx,dy,dw,dh); const wave=waveFrames[Math.floor(elapsed/140)%waveFrames.length];if(wave&&wave.complete){ctx.globalAlpha=.24;const tileW=Math.max(160,width*.32),tileH=Math.max(160,height*.34);for(let y=dy-tileH;y<dy+dh+tileH;y+=tileH)for(let x=dx-tileW;x<dx+dw+tileW;x+=tileW)ctx.drawImage(wave,x,y,tileW,tileH);ctx.globalAlpha=1;} }
+      function artFor(row) { const key=normalize(row.english_gloss); return ART.get(key)||ART.get(key.replace(/^a |^an |^the /,'')); }
+      function drawSprite(info, x,y,size, alpha=1) { if(!info||!atlases[info.atlas])return false; const source=atlases[info.atlas], cellW=source.width/5,cellH=source.height/4, sx=(info.cell%5)*cellW,sy=Math.floor(info.cell/5)*cellH;ctx.save();ctx.globalAlpha=alpha;ctx.imageSmoothingEnabled=false;ctx.drawImage(source,sx,sy,cellW,cellH,x-size*.5,y-size*.5,size,size);ctx.restore();return true; }
+      function drawTargets(view) { targets.forEach((row,i)=>{const p=targetPosition(i,targets.length);const sp=screenPoint(p,view);const active=i===targetIndex&&!found.has(i);const complete=found.has(i);if(active){ctx.save();ctx.globalAlpha=.2+.1*Math.sin(elapsed*.006);ctx.fillStyle='#f6cc55';ctx.beginPath();ctx.arc(sp.x,sp.y,Math.max(22,width*.035),0,Math.PI*2);ctx.fill();ctx.restore();} const drew=drawSprite(artFor(row),sp.x,sp.y,Math.max(42,Math.min(width,height)*.13),complete?.34:1);if(!drew){ctx.save();ctx.fillStyle=complete?'#708078':PALETTES[currentWorld][3];ctx.strokeStyle='#15333a';ctx.lineWidth=3;ctx.beginPath();ctx.arc(sp.x,sp.y,24,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#15333a';ctx.font=`900 ${Math.max(10,width*.013)}px Trebuchet MS`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(i+1),sp.x,sp.y);ctx.restore();} if(active){ctx.save();ctx.fillStyle='#fff1c7';ctx.strokeStyle='#17343a';ctx.lineWidth=2;ctx.font=`900 ${Math.max(10,width*.014)}px Trebuchet MS`;ctx.textAlign='center';ctx.fillText(String(i+1),sp.x,sp.y+Math.max(30,Math.min(width,height)*.075));ctx.restore();}}); }
+      function drawMakwa(view) { const p=screenPoint(makwa,view);const frame=Math.floor(elapsed/130)%4;const dir=keys.left?1:keys.right?2:keys.up?0:keys.down?3:2;const sx=(frame%4)*makwaSheet.width/4,sy=dir*makwaSheet.height/4;ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(makwaSheet,sx,sy,makwaSheet.width/4,makwaSheet.height/4,p.x-40,p.y-46,80,80);ctx.restore(); }
+      function drawEagle(view) { const row=targets[targetIndex]; if(!row)return; let ex,ey; const target=targetPosition(targetIndex,targets.length),tp=screenPoint(target,view); if(mode==='quiz'){ex=width*.5;ey=Math.max(62,height*.12);} else if(helpActive){ex=tp.x;ey=tp.y-54;ctx.save();ctx.globalAlpha=.55;ctx.strokeStyle='#f6cc55';ctx.setLineDash([8,6]);ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(ex,ey+16);ctx.lineTo(tp.x,tp.y-20);ctx.stroke();ctx.restore();} else {ex=width*.52+Math.sin(elapsed*.001)*width*.18;ey=Math.max(60,height*.17+Math.sin(elapsed*.004)*10);} const frame=Math.floor(elapsed/120)%8;const cellW=eagleSheet.width/4,cellH=eagleSheet.height/2;ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(eagleSheet,(frame%4)*cellW,Math.floor(frame/4)*cellH,cellW,cellH,ex-48,ey-36,96,72);ctx.restore(); }
+      function drawEagleHead() { if(!eagleHeadSheet)return;const c=eagleHeadCanvas,d=Math.min(window.devicePixelRatio||1,2);c.width=72*d;c.height=72*d;const cctx=c.getContext('2d');cctx.imageSmoothingEnabled=false;cctx.drawImage(eagleHeadSheet,0,0,eagleHeadSheet.width/2,eagleHeadSheet.height/2,0,0,c.width,c.height); }
+      function render(now=performance.now()) { if(!mapImage)return; const view=mapView(now);camera={...view};drawMap(view);drawTargets(view);drawEagle(view);drawMakwa(view);if(now-cameraStart<850)requestAnimationFrame(render); }
+      function update(dt) { const c=CROPS[currentWorld];const dx=(keys.right?1:0)-(keys.left?1:0),dy=(keys.down?1:0)-(keys.up?1:0);const len=Math.hypot(dx,dy)||1;const speed=180;makwa.x=Math.max(c[0]+34,Math.min(c[0]+c[2]-34,makwa.x+dx/len*speed*dt));makwa.y=Math.max(c[1]+38,Math.min(c[1]+c[3]-34,makwa.y+dy/len*speed*dt));if(mode!=='find')return;if(!helpActive&&performance.now()-helpStarted>7000){helpActive=true;updatePrompt();} }
+      function action() { const row=targets[targetIndex];if(!row){selectWorld(currentWorld);return;}const p=targetPosition(targetIndex,targets.length);const dist=Math.hypot(makwa.x-p.x,makwa.y-p.y);if(dist<Math.max(62,CROPS[currentWorld][2]*.14)){found.add(targetIndex);targetIndex++;helpActive=false;helpStarted=performance.now();if(targetIndex>=targets.length){if(mode==='find'){mode='quiz';targetIndex=0;found=new Set();showStatus('Round complete — quiz time');}else{mode='find';targetIndex=targets.length;showStatus('World complete — choose another world');}}updatePrompt();}else{helpActive=true;helpStarted=performance.now();showStatus('The eagle will show the way');updatePrompt();} }
+      function bindHold(id,key){const el=document.getElementById(id);const down=e=>{e.preventDefault();keys[key]=true;el.classList.add('pressed');};const up=e=>{e.preventDefault();keys[key]=false;el.classList.remove('pressed');};['pointerdown','touchstart'].forEach(type=>el.addEventListener(type,down,{passive:false}));['pointerup','pointercancel','pointerleave','touchend'].forEach(type=>el.addEventListener(type,up,{passive:false}));}
+      function frame(now){if(!last)last=now;const dt=Math.min(.05,(now-last)/1000);last=now;elapsed=now;update(dt);render(now);requestAnimationFrame(frame);}
+      function startIntro(){loading.classList.add('hidden');setTimeout(()=>{dedication.classList.add('hidden');introDone=true;selectWorld(0);},3000);}
+      function guardedAction(event) { event.preventDefault(); const now=performance.now(); if(now-lastActionAt<240)return; lastActionAt=now; action(); }
+      function openWorldNotice(event) { event.preventDefault(); showStatus('All seven worlds are open'); }
+      bindHold('left','left');bindHold('right','right');bindHold('up','up');bindHold('down','down');
+      ['pointerdown','touchstart'].forEach(type=>document.getElementById('button-a').addEventListener(type,guardedAction,{passive:false}));
+      ['pointerdown','touchstart'].forEach(type=>document.getElementById('button-b').addEventListener(type,openWorldNotice,{passive:false}));
+      window.addEventListener('keydown',e=>{const m={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',a:'left',d:'right',w:'up',s:'down',A:'left',D:'right',W:'up',S:'down'};if(m[e.key]){e.preventDefault();keys[m[e.key]]=true;}if(e.key==='z'||e.key==='Z'||e.key==='Enter'||e.key===' '){e.preventDefault();guardedAction(e);}if(e.key==='x'||e.key==='X'||e.key==='Escape')showStatus('All seven worlds are open');});
+      window.addEventListener('keyup',e=>{const m={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',a:'left',d:'right',w:'up',s:'down',A:'left',D:'right',W:'up',S:'down'};if(m[e.key])keys[m[e.key]]=false;});window.addEventListener('resize',resize,{passive:true});
+      dedication.addEventListener('pointerdown',()=>{if(!introDone){dedication.classList.add('hidden');introDone=true;selectWorld(0);}});dedication.addEventListener('touchstart',e=>{e.preventDefault();if(!introDone){dedication.classList.add('hidden');introDone=true;selectWorld(0);}},{passive:false});
+      buildWorldTabs();
+      loadAssets().then(()=>{resize();selectWorld(0);setTimeout(startIntro,520);requestAnimationFrame(frame);}).catch(()=>{loadNote.textContent='Please reload to finish loading the island.';});
+      if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+    })();
+  </script>
+</body>
+</html>

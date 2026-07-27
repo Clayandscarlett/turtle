@@ -1,0 +1,10 @@
+{
+  "name": "My First Saulteaux Words — GBA Art Preview",
+  "short_name": "Saulteaux Art",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#052b39",
+  "theme_color": "#06343d",
+  "icons": []
+}
