@@ -16,6 +16,7 @@
     button, canvas { font:inherit; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
     button { border:0; }
     #app, #shell { position:fixed; inset:0; width:100%; height:100%; overflow:hidden; }
+    #shell { --control-dock-height:106px; }
     #world-canvas { position:absolute; inset:0; display:block; width:100%; height:100%; image-rendering:pixelated; }
     .vignette { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at center, transparent 48%, rgba(0,0,0,.22) 100%); }
     .topbar { position:absolute; top:max(8px,env(safe-area-inset-top)); left:0; right:0; z-index:4; display:flex; align-items:flex-start; gap:8px; padding:8px 10px; pointer-events:none; }
@@ -26,7 +27,7 @@
     #world-tabs::-webkit-scrollbar { display:none; }
     .world-tab { flex:0 0 auto; padding:6px 9px; border:2px solid rgba(255,241,199,.58); border-radius:999px; color:var(--cream); background:rgba(4,28,36,.83); font-size:11px; font-weight:900; cursor:pointer; }
     .world-tab.active { color:var(--ink); background:var(--gold); border-color:#fff4ce; }
-    #prompt { position:absolute; left:50%; bottom:max(103px,calc(env(safe-area-inset-bottom) + 88px)); z-index:6; display:flex; align-items:center; gap:10px; width:min(590px,calc(100% - 20px)); padding:8px 10px; transform:translateX(-50%); border:3px solid var(--ink); border-radius:16px; color:var(--ink); background:rgba(255,241,199,.96); box-shadow:0 6px 0 rgba(0,0,0,.32); }
+    #prompt { position:absolute; left:50%; bottom:calc(var(--control-dock-height) + env(safe-area-inset-bottom) + 24px); z-index:6; display:flex; align-items:center; gap:10px; width:min(590px,calc(100% - 20px)); padding:8px 10px; transform:translateX(-50%); border:3px solid var(--ink); border-radius:16px; color:var(--ink); background:rgba(255,241,199,.96); box-shadow:0 6px 0 rgba(0,0,0,.32); }
     #eagle-head { flex:0 0 52px; width:52px; height:52px; border:2px solid #9a7438; border-radius:12px; overflow:hidden; background:#ff00ff; }
     #eagle-head canvas { width:100%; height:100%; display:block; image-rendering:pixelated; }
     #prompt-copy { min-width:0; line-height:1.05; }
@@ -36,14 +37,14 @@
     #prompt-help { margin-left:auto; max-width:130px; font-size:10px; font-weight:800; text-align:right; opacity:.68; }
     #status { position:absolute; left:50%; top:max(105px,calc(env(safe-area-inset-top) + 96px)); z-index:6; padding:6px 10px; border:2px solid rgba(255,241,199,.64); border-radius:999px; color:var(--cream); background:rgba(3,28,36,.78); font-size:11px; font-weight:900; transform:translateX(-50%); opacity:0; transition:opacity .18s ease; pointer-events:none; }
     #status.show { opacity:1; }
-    #controls { position:absolute; left:0; right:0; bottom:max(8px,env(safe-area-inset-bottom)); height:88px; z-index:8; pointer-events:none; }
-    #dpad { position:absolute; left:max(12px,env(safe-area-inset-left)); bottom:4px; width:94px; height:80px; pointer-events:auto; }
-    .pad-button { position:absolute; width:31px; height:31px; display:grid; place-items:center; border:2px solid rgba(255,241,199,.84); border-radius:9px; color:var(--cream); background:rgba(4,28,36,.88); box-shadow:0 3px 0 rgba(0,0,0,.35); font-weight:1000; cursor:pointer; }
+    #controls { position:absolute; left:0; right:0; bottom:calc(8px + env(safe-area-inset-bottom)); height:var(--control-dock-height); z-index:8; pointer-events:none; }
+    #dpad { position:absolute; left:max(16px,env(safe-area-inset-left)); bottom:2px; width:132px; height:108px; pointer-events:auto; }
+    .pad-button { position:absolute; width:42px; height:42px; display:grid; place-items:center; border:2px solid rgba(255,241,199,.84); border-radius:10px; color:var(--cream); background:rgba(4,28,36,.88); box-shadow:0 3px 0 rgba(0,0,0,.35); font-weight:1000; cursor:pointer; }
     .pad-button:active, .pad-button.pressed { color:var(--ink); background:var(--gold); transform:translateY(2px); }
-    #up { left:31px; top:0; } #down { left:31px; bottom:0; } #left { left:0; top:25px; } #right { right:0; top:25px; }
-    #face-buttons { position:absolute; right:max(19px,env(safe-area-inset-right)); bottom:5px; width:111px; height:72px; transform:rotate(-18deg); transform-origin:50% 50%; pointer-events:auto; }
-    .face-button { position:absolute; width:49px; height:49px; border:3px solid rgba(255,241,199,.86); border-radius:50%; color:var(--cream); background:var(--berry); box-shadow:0 4px 0 rgba(0,0,0,.38); font-size:17px; font-weight:1000; cursor:pointer; }
-    #button-b { left:0; top:19px; } #button-a { right:0; top:0; background:#315c79; }
+    #up { left:45px; top:0; } #down { left:45px; bottom:0; } #left { left:0; top:33px; } #right { right:0; top:33px; }
+    #face-buttons { position:absolute; right:max(22px,env(safe-area-inset-right)); bottom:4px; width:132px; height:90px; transform:rotate(-18deg); transform-origin:50% 50%; pointer-events:auto; }
+    .face-button { position:absolute; width:58px; height:58px; border:3px solid rgba(255,241,199,.86); border-radius:50%; color:var(--cream); background:var(--berry); box-shadow:0 4px 0 rgba(0,0,0,.38); font-size:19px; font-weight:1000; cursor:pointer; }
+    #button-b { left:0; top:24px; } #button-a { right:0; top:0; background:#315c79; }
     .face-button:active { color:var(--ink); background:var(--gold); transform:translateY(2px); }
     #loading, #dedication { position:absolute; inset:0; z-index:20; display:grid; place-items:center; background:#061d2a; }
     #loading { transition:opacity .45s ease,visibility .45s ease; }
@@ -62,10 +63,11 @@
     .scroll-hint { margin-top:24px; font-size:11px; opacity:.65; }
     @media (orientation:landscape) and (max-height:540px) {
       #world-tabs { top:max(52px,calc(env(safe-area-inset-top) + 42px)); }
-      #prompt { bottom:max(78px,calc(env(safe-area-inset-bottom) + 66px)); }
-      #controls { height:66px; } #dpad { height:60px; } #face-buttons { height:56px; }
-      .pad-button { width:25px; height:25px; } #up{left:27px;} #down{left:27px;} #left,#right{top:18px;}
-      .face-button { width:40px; height:40px; } #button-b{top:16px;}
+      #shell { --control-dock-height:74px; }
+      #prompt { bottom:calc(var(--control-dock-height) + env(safe-area-inset-bottom) + 19px); }
+      #controls { height:var(--control-dock-height); } #dpad { width:100px; height:78px; left:max(12px,env(safe-area-inset-left)); } #face-buttons { width:110px; height:70px; right:max(16px,env(safe-area-inset-right)); }
+      .pad-button { width:34px; height:34px; } #up{left:33px;} #down{left:33px;} #left,#right{top:22px;}
+      .face-button { width:46px; height:46px; } #button-b{top:16px;}
     }
   </style>
 </head>
@@ -116,6 +118,7 @@
       let width = 960, height = 540, dpr = 1, elapsed = 0, last = 0;
       let roster = [], currentWorld = 0, targets = [], targetIndex = 0, found = new Set();
       let mode = 'find', helpActive = false, helpStarted = 0, introDone = false;
+      let lastActionAt = 0;
       let camera = { x:0,y:222,w:560,h:315 }, cameraFrom = {...camera}, cameraTo = {...camera}, cameraStart = 0;
       let makwa = { x:280, y:390 }, mapImage, makwaSheet, eagleSheet, eagleHeadSheet;
       let waveFrames = [], atlases = [];
@@ -166,7 +169,14 @@
       function bindHold(id,key){const el=document.getElementById(id);const down=e=>{e.preventDefault();keys[key]=true;el.classList.add('pressed');};const up=e=>{e.preventDefault();keys[key]=false;el.classList.remove('pressed');};['pointerdown','touchstart'].forEach(type=>el.addEventListener(type,down,{passive:false}));['pointerup','pointercancel','pointerleave','touchend'].forEach(type=>el.addEventListener(type,up,{passive:false}));}
       function frame(now){if(!last)last=now;const dt=Math.min(.05,(now-last)/1000);last=now;elapsed=now;update(dt);render(now);requestAnimationFrame(frame);}
       function startIntro(){loading.classList.add('hidden');setTimeout(()=>{dedication.classList.add('hidden');introDone=true;selectWorld(0);},3000);}
-      bindHold('left','left');bindHold('right','right');bindHold('up','up');bindHold('down','down');document.getElementById('button-a').addEventListener('pointerdown',e=>{e.preventDefault();action();});document.getElementById('button-b').addEventListener('pointerdown',e=>{e.preventDefault();showStatus('All seven worlds are open');});window.addEventListener('keydown',e=>{const m={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'};if(m[e.key]){e.preventDefault();keys[m[e.key]]=true;}if(e.key==='a'||e.key==='A'||e.key==='Enter')action();if(e.key==='b'||e.key==='B')showStatus('All seven worlds are open');});window.addEventListener('keyup',e=>{const m={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'};if(m[e.key])keys[m[e.key]]=false;});window.addEventListener('resize',resize,{passive:true});dedication.addEventListener('pointerdown',()=>{if(!introDone){dedication.classList.add('hidden');introDone=true;selectWorld(0);}});
+      function guardedAction(event) { event.preventDefault(); const now=performance.now(); if(now-lastActionAt<240)return; lastActionAt=now; action(); }
+      function openWorldNotice(event) { event.preventDefault(); showStatus('All seven worlds are open'); }
+      bindHold('left','left');bindHold('right','right');bindHold('up','up');bindHold('down','down');
+      ['pointerdown','touchstart'].forEach(type=>document.getElementById('button-a').addEventListener(type,guardedAction,{passive:false}));
+      ['pointerdown','touchstart'].forEach(type=>document.getElementById('button-b').addEventListener(type,openWorldNotice,{passive:false}));
+      window.addEventListener('keydown',e=>{const m={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',a:'left',d:'right',w:'up',s:'down',A:'left',D:'right',W:'up',S:'down'};if(m[e.key]){e.preventDefault();keys[m[e.key]]=true;}if(e.key==='z'||e.key==='Z'||e.key==='Enter'||e.key===' '){e.preventDefault();guardedAction(e);}if(e.key==='x'||e.key==='X'||e.key==='Escape')showStatus('All seven worlds are open');});
+      window.addEventListener('keyup',e=>{const m={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',a:'left',d:'right',w:'up',s:'down',A:'left',D:'right',W:'up',S:'down'};if(m[e.key])keys[m[e.key]]=false;});window.addEventListener('resize',resize,{passive:true});
+      dedication.addEventListener('pointerdown',()=>{if(!introDone){dedication.classList.add('hidden');introDone=true;selectWorld(0);}});dedication.addEventListener('touchstart',e=>{e.preventDefault();if(!introDone){dedication.classList.add('hidden');introDone=true;selectWorld(0);}},{passive:false});
       buildWorldTabs();
       loadAssets().then(()=>{resize();selectWorld(0);setTimeout(startIntro,520);requestAnimationFrame(frame);}).catch(()=>{loadNote.textContent='Please reload to finish loading the island.';});
       if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));

@@ -17,11 +17,18 @@ required after the service worker has cached the files.
 
 ## Artwork-first playable shell
 
-`saulteaux-game-shell.html` is the next build checkpoint. It uses the approved
+`index.html` now opens `saulteaux-game-shell.html`, which is the actual playable
+game entry point. The shell uses the approved
 GBA Turtle Island master map, exact seven camera crops, chroma-keyed Makwa and
 eagle sheets, the turquoise/teal wave frames, and the first four 20-cell object
 atlases. It keeps all seven worlds open from the start, uses the dedication
 scroll, and implements find rounds followed by a visual Saulteaux quiz round.
+
+The control deck is safe-area aware: the D-pad sits in the lower-left corner,
+the diagonal B-lower-left/A-upper-right cluster sits in the lower-right corner,
+and the prompt panel is lifted above the control dock so the controls never
+cover the reading prompt. Touch, pointer, keyboard arrows, and WASD are
+supported without iPhone long-press selection or copy/paste callouts.
 
 The shell loads its art from `saulteaux-preview/assets/` and is cached by the
 updated root `sw.js` service worker. Open it through a local static server:
