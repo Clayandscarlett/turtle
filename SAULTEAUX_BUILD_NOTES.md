@@ -1,7 +1,30 @@
-# Tatawaw Teachings — first playable slice
+# Tatawaw Teachings — Cree-parity playable build
 
-This is the first offline Saulteaux prototype. Serve this folder over a local
-HTTP server so the service worker can cache the build:
+`index.html` is the complete, self-contained game. It is not an artwork
+preview: the Turtle Island artwork, Makwa and eagle sprite sheets, animated
+water, four object atlases, and all 300 roster entries are embedded directly in
+that file.
+
+The gameplay structure now follows the Cree game:
+
+- opening/loading flow and local Continue save;
+- every world and arena open from the beginning;
+- 7 Saulteaux Turtle Island worlds, 50 arenas, and 6 entries per arena;
+- an English-supported visual find pass followed by a Saulteaux-only quiz pass;
+- Makwa movement, A interaction, B pause, START map, and SELECT journal;
+- eagle prompting, wrong-choice guidance, and help after 7 seconds;
+- arena completion, replay/next-arena flow, progress tracking, and a 300-entry
+  found/mastered word journal;
+- touch, keyboard, and gamepad controls in a full-screen, non-stretched layout;
+- offline PWA caching through `manifest.webmanifest` and `sw.js`.
+
+The seven camera views are crops of the approved master Turtle Island image, so
+changing worlds pans to the corresponding land on the turtle's back rather than
+switching to an unrelated background.
+
+## Run
+
+For the installed/offline PWA path, serve the folder over HTTP:
 
 ```sh
 python3 -m http.server 8080
@@ -9,38 +32,15 @@ python3 -m http.server 8080
 
 Then open `http://localhost:8080/index.html`.
 
-The prototype includes the original loading screen, dedication scroll, seven
-unlocked worlds, Turtle Island canvas, Makwa movement, eagle guidance, visual
-rounds, touch controls, and the 300-entry source roster. Language entries are
-read from `saulteaux-300-word-roster.csv`; no network runtime dependency is
-required after the service worker has cached the files.
+The self-contained `index.html` also opens without sibling art or roster files.
+Because those resources are embedded, the service worker only needs to cache
+the standalone entry, manifest, and home-screen icons. The service worker
+requires HTTP or HTTPS, as all browsers do.
 
-## Artwork-first playable shell
+## Development
 
-`index.html` is now the complete self-contained playable game entry point. It
-embeds the same shell, approved artwork, wave frames, and 300-row roster so the
-ChatGPT single-file preview cannot get stuck waiting for a sibling asset folder.
-`saulteaux-game-shell.html` is also self-contained so opening that file directly
-in a single-file preview is playable. `saulteaux-game-shell-folder.html` keeps
-the smaller folder-based source build for local development. The shell uses the approved
-GBA Turtle Island master map, exact seven camera crops, chroma-keyed Makwa and
-eagle sheets, the turquoise/teal wave frames, and the first four 20-cell object
-atlases. It keeps all seven worlds open from the start, uses the dedication
-scroll, and implements find rounds followed by a visual Saulteaux quiz round.
-
-The control deck is safe-area aware: the D-pad sits in the lower-left corner,
-the diagonal B-lower-left/A-upper-right cluster sits in the lower-right corner,
-and the prompt panel is lifted above the control dock so the controls never
-cover the reading prompt. Touch, pointer, keyboard arrows, and WASD are
-supported without iPhone long-press selection or copy/paste callouts.
-
-The folder-based shell loads its art from `saulteaux-preview/assets/`; the
-self-contained root entry does not need that folder at runtime. Both are cached
-by the updated root `sw.js` service worker. Open the self-contained game through
-a local static server:
-
-```sh
-python3 -m http.server 8080
-```
-
-Then visit `http://localhost:8080/index.html`.
+- `saulteaux-cree-parity-source.html` is the readable folder-based source.
+- `build-saulteaux-parity.mjs` embeds the roster and 16 art assets into
+  `index.html` and `saulteaux-game-shell.html`.
+- `validate-saulteaux-parity.mjs` checks the campaign, scripts, embedded files,
+  and parity-critical controls.

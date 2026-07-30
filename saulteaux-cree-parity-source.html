@@ -1,0 +1,1546 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#06343d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tatawaw Teachings">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="app-icons/apple-touch-icon.png">
+  <title>Tatawaw Teachings — My First Saulteaux Words</title>
+  <style>
+    :root {
+      --ink:#102c32;
+      --cream:#fff1c7;
+      --paper:#f8e3a9;
+      --gold:#f3c35c;
+      --deep:#052b39;
+      --teal:#147f84;
+      --berry:#8f4150;
+      --blue:#315c79;
+      --panel:rgba(4,28,36,.93);
+      --line:rgba(255,241,199,.68);
+      --dock:112px;
+    }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html,body { width:100%; height:100%; margin:0; overflow:hidden; background:var(--deep); }
+    body {
+      color:var(--cream);
+      font-family:-apple-system,BlinkMacSystemFont,"Trebuchet MS",Arial,sans-serif;
+      user-select:none;
+      -webkit-user-select:none;
+      -webkit-touch-callout:none;
+      overscroll-behavior:none;
+      touch-action:none;
+    }
+    button,canvas,input { font:inherit; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+    button { border:0; cursor:pointer; }
+    button:focus-visible { outline:3px solid var(--gold); outline-offset:3px; }
+    #app,#game-shell { position:fixed; inset:0; width:100%; height:100%; overflow:hidden; }
+    #game-shell { min-height:320px; background:var(--deep); }
+    #game-canvas { position:absolute; inset:0; display:block; width:100%; height:100%; image-rendering:pixelated; }
+    #vignette { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at center,transparent 54%,rgba(0,0,0,.28) 100%); }
+    .hidden { display:none!important; }
+    .screen {
+      position:absolute;
+      inset:0;
+      z-index:20;
+      display:none;
+      place-items:center;
+      padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));
+    }
+    .screen.active { display:grid; }
+    .panel {
+      border:3px solid var(--line);
+      border-radius:18px;
+      background:var(--panel);
+      box-shadow:0 8px 0 rgba(0,0,0,.34);
+    }
+    .pixel-button {
+      min-height:46px;
+      padding:10px 17px;
+      border:3px solid var(--ink);
+      border-radius:10px;
+      color:var(--ink);
+      background:var(--cream);
+      box-shadow:0 5px 0 rgba(0,0,0,.34);
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+    .pixel-button.primary { background:var(--gold); }
+    .pixel-button.dark { color:var(--cream); border-color:var(--line); background:#0b4650; }
+    .pixel-button:active { transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.34); }
+    .eyebrow { color:var(--gold); font-size:11px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; }
+
+    #loading { z-index:50; background:#061d2a; }
+    .boot-card { width:min(620px,calc(100% - 30px)); text-align:center; }
+    .boot-title { color:#f8f1d0; font-family:Impact,"Arial Black",sans-serif; font-size:clamp(34px,10vw,74px); letter-spacing:.15em; line-height:.86; }
+    .boot-title span { display:block; margin-top:15px; color:#e3b94d; font-size:.43em; letter-spacing:.38em; }
+    .load-track { height:14px; margin:32px auto 12px; overflow:hidden; border:2px solid #f8f1d0; border-radius:999px; background:#0c3649; }
+    #load-fill { width:0; height:100%; background:linear-gradient(90deg,#e3b94d,#f7d879); transition:width .18s ease; }
+    #load-note { color:rgba(248,241,208,.78); font-size:12px; letter-spacing:.08em; }
+
+    #dedication { z-index:45; background:rgba(4,25,34,.86); opacity:1; transition:opacity .85s ease,visibility .85s ease; }
+    #dedication.fade { opacity:0; visibility:hidden; pointer-events:none; }
+    .scroll-paper {
+      width:min(680px,100%);
+      padding:clamp(30px,7vw,62px) clamp(24px,7vw,68px);
+      border:7px solid #875d28;
+      color:#29291f;
+      background:repeating-linear-gradient(0deg,#f7e6ac 0,#f7e6ac 4px,#f3dda0 5px,#f3dda0 6px);
+      box-shadow:0 9px 0 rgba(0,0,0,.36);
+      text-align:center;
+      transform:rotate(-1deg);
+    }
+    .scroll-title { margin:15px 0 25px; color:#8f4150; font-family:Impact,"Arial Black",sans-serif; font-size:clamp(34px,9vw,66px); line-height:.94; }
+    .scroll-dedication { font-size:clamp(15px,3.8vw,23px); font-weight:900; line-height:1.35; }
+    .scroll-hint { margin-top:25px; font-size:11px; opacity:.66; }
+
+    #title-screen { z-index:30; background:linear-gradient(90deg,rgba(3,23,28,.75),rgba(3,23,28,.2),rgba(3,23,28,.52)); }
+    .title-card { width:min(720px,calc(100% - 16px)); padding:clamp(20px,5vw,42px); text-align:center; }
+    .title-mark {
+      margin:9px auto 12px;
+      color:#e9483e;
+      font-family:Impact,"Arial Black",sans-serif;
+      font-size:clamp(38px,9vw,76px);
+      line-height:.88;
+      letter-spacing:.025em;
+      -webkit-text-stroke:2px #1d342f;
+    }
+    .title-mark span { display:block; margin-top:10px; color:#f3c35c; font-size:.7em; }
+    .title-subtitle { max-width:590px; margin:0 auto 18px; color:var(--cream); font-size:clamp(13px,2.6vw,18px); font-weight:800; line-height:1.35; }
+    .title-badges { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:16px 0; }
+    .badge { padding:6px 10px; border:2px solid var(--line); border-radius:999px; color:var(--cream); background:#0d4d49; font-size:10px; font-weight:900; letter-spacing:.06em; }
+    .badge.music { background:#4e3d23; }
+    .title-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
+    .campaign-line { margin-top:15px; color:rgba(255,241,199,.8); font-size:11px; font-weight:800; }
+
+    #hud { position:absolute; inset:0; z-index:8; pointer-events:none; }
+    .topbar { position:absolute; top:max(8px,env(safe-area-inset-top)); left:0; right:0; display:flex; gap:8px; align-items:flex-start; padding:8px 10px; }
+    .brand,.world-name,.arena-chip { padding:7px 10px; border:2px solid var(--line); border-radius:10px; background:rgba(3,28,36,.86); font-weight:900; line-height:1.05; }
+    .brand { color:var(--gold); font-size:clamp(9px,2vw,15px); letter-spacing:.12em; }
+    .world-name { margin-left:auto; max-width:52%; text-align:right; font-size:clamp(9px,1.9vw,14px); }
+    .arena-chip { color:var(--cream); font-size:10px; white-space:nowrap; }
+    #status {
+      position:absolute;
+      top:max(59px,calc(env(safe-area-inset-top) + 50px));
+      left:50%;
+      padding:6px 11px;
+      border:2px solid var(--line);
+      border-radius:999px;
+      color:var(--cream);
+      background:rgba(3,28,36,.86);
+      font-size:11px;
+      font-weight:900;
+      transform:translateX(-50%);
+      opacity:0;
+      transition:opacity .18s ease;
+    }
+    #status.show { opacity:1; }
+    #prompt {
+      position:absolute;
+      left:50%;
+      bottom:calc(var(--dock) + env(safe-area-inset-bottom) + 20px);
+      display:flex;
+      align-items:center;
+      gap:9px;
+      width:min(660px,calc(100% - 18px));
+      min-height:76px;
+      padding:7px 10px;
+      border:3px solid var(--ink);
+      border-radius:16px;
+      color:var(--ink);
+      background:rgba(255,241,199,.97);
+      box-shadow:0 6px 0 rgba(0,0,0,.32);
+      transform:translateX(-50%);
+    }
+    #eagle-head,#target-art-wrap { flex:0 0 56px; width:56px; height:56px; overflow:hidden; border:2px solid #9a7438; border-radius:12px; background:#214b50; }
+    #eagle-head canvas,#target-art { display:block; width:100%; height:100%; image-rendering:pixelated; }
+    #target-art-wrap { background:#d5c58f; }
+    #prompt-copy { min-width:0; line-height:1.05; }
+    #prompt-kicker { color:#316d73; font-size:9px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
+    #target-saulteau { margin-top:3px; overflow-wrap:anywhere; font-size:clamp(17px,4vw,25px); font-weight:900; }
+    #target-english { margin-top:3px; overflow-wrap:anywhere; font-size:clamp(10px,2.3vw,14px); opacity:.76; }
+    #prompt-meta { margin-left:auto; max-width:126px; text-align:right; font-size:9px; font-weight:900; line-height:1.25; opacity:.68; }
+
+    #controls { position:absolute; left:0; right:0; bottom:calc(7px + env(safe-area-inset-bottom)); height:var(--dock); pointer-events:none; }
+    #dpad { position:absolute; left:max(14px,env(safe-area-inset-left)); bottom:2px; width:132px; height:108px; pointer-events:auto; }
+    .pad-button {
+      position:absolute;
+      display:grid;
+      place-items:center;
+      width:42px;
+      height:42px;
+      border:2px solid rgba(255,241,199,.84);
+      border-radius:10px;
+      color:var(--cream);
+      background:rgba(4,28,36,.9);
+      box-shadow:0 3px 0 rgba(0,0,0,.35);
+      font-weight:900;
+    }
+    .pad-button:active,.pad-button.pressed { color:var(--ink); background:var(--gold); transform:translateY(2px); }
+    #up { left:45px; top:0; } #down { left:45px; bottom:0; } #left { left:0; top:33px; } #right { right:0; top:33px; }
+    #face-buttons { position:absolute; right:max(20px,env(safe-area-inset-right)); bottom:4px; width:132px; height:90px; transform:rotate(-18deg); transform-origin:50% 50%; pointer-events:auto; }
+    .face-button {
+      position:absolute;
+      width:58px;
+      height:58px;
+      border:3px solid rgba(255,241,199,.86);
+      border-radius:50%;
+      color:var(--cream);
+      background:var(--berry);
+      box-shadow:0 4px 0 rgba(0,0,0,.38);
+      font-size:19px;
+      font-weight:900;
+    }
+    #button-b { left:0; top:24px; } #button-a { right:0; top:0; background:var(--blue); }
+    .face-button:active { color:var(--ink); background:var(--gold); transform:translateY(2px); }
+    #system-buttons { position:absolute; left:50%; bottom:12px; display:flex; gap:12px; transform:translateX(-50%); pointer-events:auto; }
+    .system-button { min-width:62px; padding:5px 9px; border:2px solid var(--line); border-radius:999px; color:var(--cream); background:rgba(4,28,36,.9); font-size:8px; font-weight:900; letter-spacing:.08em; }
+    .system-button:active { color:var(--ink); background:var(--gold); }
+
+    .overlay { z-index:35; align-items:stretch; justify-items:center; background:rgba(3,20,27,.83); overflow:hidden; }
+    .overlay-panel { width:min(1060px,100%); height:100%; max-height:850px; display:flex; flex-direction:column; overflow:hidden; }
+    .overlay-head { display:flex; align-items:center; gap:12px; padding:15px 16px 12px; border-bottom:2px solid rgba(255,241,199,.24); }
+    .overlay-title { margin:2px 0 0; font-family:Impact,"Arial Black",sans-serif; font-size:clamp(24px,5vw,42px); letter-spacing:.04em; }
+    .overlay-head .pixel-button { margin-left:auto; min-height:38px; padding:7px 12px; }
+    .overlay-body { flex:1; min-height:0; overflow:auto; padding:14px; -webkit-overflow-scrolling:touch; touch-action:pan-y; }
+    #world-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .world-card { padding:13px; border:2px solid var(--line); border-radius:14px; background:rgba(11,67,71,.88); }
+    .world-card h3 { margin:0; color:var(--gold); font-size:15px; }
+    .world-card p { min-height:30px; margin:5px 0 9px; color:rgba(255,241,199,.78); font-size:11px; line-height:1.3; }
+    .world-progress { display:flex; align-items:center; gap:8px; margin-bottom:9px; font-size:10px; font-weight:900; }
+    .mini-track { flex:1; height:8px; overflow:hidden; border:1px solid var(--line); border-radius:99px; background:#082f3a; }
+    .mini-fill { height:100%; background:var(--gold); }
+    .arena-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+    .arena-button { min-height:37px; padding:5px; border:2px solid rgba(255,241,199,.54); border-radius:8px; color:var(--cream); background:#0a3f48; font-size:9px; font-weight:900; line-height:1.1; }
+    .arena-button.complete { color:var(--ink); background:#8fb769; border-color:#dce9a4; }
+    .arena-button.current { color:var(--ink); background:var(--gold); }
+
+    .journal-tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+    .journal-tab { padding:7px 12px; border:2px solid var(--line); border-radius:999px; color:var(--cream); background:#0a3f48; font-size:10px; font-weight:900; }
+    .journal-tab.active { color:var(--ink); background:var(--gold); }
+    #journal-summary { margin:0 0 12px; font-size:12px; font-weight:900; }
+    #journal-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .journal-entry { display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:9px; align-items:center; padding:9px; border:2px solid rgba(255,241,199,.35); border-radius:10px; background:rgba(8,53,62,.82); }
+    .journal-number { display:grid; place-items:center; width:34px; height:34px; border-radius:8px; color:var(--ink); background:#b7aa78; font-size:10px; font-weight:900; }
+    .journal-entry.found .journal-number { background:#efc45e; }
+    .journal-entry.mastered .journal-number { background:#8fb769; }
+    .journal-word { overflow-wrap:anywhere; color:var(--cream); font-size:13px; font-weight:900; }
+    .journal-gloss { margin-top:2px; overflow-wrap:anywhere; color:rgba(255,241,199,.68); font-size:10px; }
+    .journal-state { color:rgba(255,241,199,.68); font-size:8px; font-weight:900; text-transform:uppercase; }
+
+    .menu-card { width:min(470px,100%); padding:22px; text-align:center; }
+    .menu-card h2 { margin:6px 0 10px; font-family:Impact,"Arial Black",sans-serif; font-size:36px; letter-spacing:.04em; }
+    .menu-card p { margin:0 0 18px; color:rgba(255,241,199,.78); font-size:12px; line-height:1.4; }
+    .menu-actions { display:grid; gap:10px; }
+    #complete-stars { margin:8px 0 16px; color:var(--gold); font-size:26px; letter-spacing:.12em; }
+
+    @media (max-width:700px) {
+      #world-grid,#journal-list { grid-template-columns:1fr; }
+      .arena-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      #prompt-meta { display:none; }
+      #eagle-head { display:none; }
+      #prompt { min-height:68px; }
+    }
+    @media (max-width:430px) {
+      :root { --dock:108px; }
+      .brand { max-width:42%; }
+      .arena-chip { display:none; }
+      #target-art-wrap { flex-basis:50px; width:50px; height:50px; }
+      #prompt { bottom:calc(var(--dock) + env(safe-area-inset-bottom) + 15px); }
+      #dpad { left:max(8px,env(safe-area-inset-left)); }
+      #face-buttons { right:max(10px,env(safe-area-inset-right)); }
+      .title-card { padding:19px 14px; }
+    }
+    @media (orientation:landscape) and (max-height:560px) {
+      :root { --dock:76px; }
+      .topbar { padding-top:5px; }
+      #status { top:max(48px,calc(env(safe-area-inset-top) + 39px)); }
+      #prompt { bottom:calc(var(--dock) + env(safe-area-inset-bottom) + 11px); min-height:60px; padding:5px 8px; }
+      #eagle-head,#target-art-wrap { flex-basis:46px; width:46px; height:46px; }
+      #dpad { width:100px; height:78px; left:max(10px,env(safe-area-inset-left)); }
+      .pad-button { width:34px; height:34px; }
+      #up { left:33px; } #down { left:33px; } #left,#right { top:22px; }
+      #face-buttons { width:110px; height:70px; right:max(14px,env(safe-area-inset-right)); }
+      .face-button { width:46px; height:46px; }
+      #button-b { top:16px; }
+      #system-buttons { bottom:5px; }
+      .system-button { min-width:54px; padding:4px 7px; }
+      .title-card { padding:15px 23px; }
+      .title-mark { font-size:clamp(34px,9vh,58px); }
+      .title-subtitle,.campaign-line { margin-bottom:9px; }
+      .title-badges { margin:9px 0; }
+      .pixel-button { min-height:40px; padding:7px 13px; }
+      .overlay-head { padding:9px 12px 7px; }
+      .overlay-body { padding:9px; }
+      .world-card { padding:9px; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      *,*::before,*::after { scroll-behavior:auto!important; transition-duration:.01ms!important; animation-duration:.01ms!important; }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" aria-label="Tatawaw Teachings Saulteaux reading game">
+    <section id="game-shell">
+      <canvas id="game-canvas" aria-label="Turtle Island game map"></canvas>
+      <div id="vignette"></div>
+
+      <section id="hud" class="hidden" aria-label="Game interface">
+        <header class="topbar">
+          <div class="brand">TATAWAW TEACHINGS</div>
+          <div id="arena-chip" class="arena-chip">Arena 1 of 50</div>
+          <div id="world-name" class="world-name">Water and Turtle Island</div>
+        </header>
+        <div id="status" role="status"></div>
+        <section id="prompt" aria-live="polite">
+          <div id="eagle-head"><canvas id="eagle-head-canvas" aria-hidden="true"></canvas></div>
+          <div id="target-art-wrap"><canvas id="target-art" aria-label="Picture of the object to find"></canvas></div>
+          <div id="prompt-copy">
+            <div id="prompt-kicker">Eagle asks you to find</div>
+            <div id="target-saulteau">Loading…</div>
+            <div id="target-english"></div>
+          </div>
+          <div id="prompt-meta">Find 1 of 6<br>Move, then press A</div>
+        </section>
+        <section id="controls" aria-label="Game Boy Advance controls">
+          <div id="dpad">
+            <button class="pad-button" id="up" aria-label="Move up">▲</button>
+            <button class="pad-button" id="left" aria-label="Move left">◀</button>
+            <button class="pad-button" id="right" aria-label="Move right">▶</button>
+            <button class="pad-button" id="down" aria-label="Move down">▼</button>
+          </div>
+          <div id="system-buttons">
+            <button class="system-button" id="select-button" aria-label="Open word journal">SELECT</button>
+            <button class="system-button" id="start-button" aria-label="Open world map">START</button>
+          </div>
+          <div id="face-buttons">
+            <button class="face-button" id="button-b" aria-label="B button">B</button>
+            <button class="face-button" id="button-a" aria-label="A button">A</button>
+          </div>
+        </section>
+      </section>
+
+      <section id="loading" class="screen active" aria-live="polite">
+        <div class="boot-card">
+          <div class="boot-title">TATAWAW<span>TEACHINGS</span></div>
+          <div class="load-track"><div id="load-fill"></div></div>
+          <div id="load-note">Preparing Turtle Island…</div>
+        </div>
+      </section>
+
+      <section id="dedication" class="screen" aria-label="Dedication scroll">
+        <div class="scroll-paper">
+          <div class="eyebrow">A quiet reading journey</div>
+          <div class="scroll-title">My first<br>Saulteaux words</div>
+          <div class="scroll-dedication">Dedicated to my wife Scarlett<br>&amp; father-in-law Magnus</div>
+          <div class="scroll-hint">Tap anywhere to continue</div>
+        </div>
+      </section>
+
+      <section id="title-screen" class="screen" aria-label="Opening screen">
+        <div class="title-card panel">
+          <div class="eyebrow">A Saulteaux reading adventure</div>
+          <div class="title-mark">MY FIRST<span>SAULTEAUX WORDS</span></div>
+          <p class="title-subtitle">Learn by exploring Turtle Island, noticing each picture, and finding every Saulteaux word again.</p>
+          <div class="title-badges">
+            <span class="badge">OFFLINE READY · SAVES ON THIS PHONE</span>
+            <button id="music-toggle" class="badge music" type="button">MUSIC: ON</button>
+          </div>
+          <div class="title-actions">
+            <button id="begin-button" class="pixel-button primary">BEGIN JOURNEY</button>
+            <button id="continue-button" class="pixel-button">CONTINUE</button>
+            <button id="title-map-button" class="pixel-button dark">WORLD MAP</button>
+          </div>
+          <div class="campaign-line">7 worlds · 50 arenas · 300 visual entries · all open from the beginning</div>
+        </div>
+      </section>
+
+      <section id="world-map-screen" class="screen overlay" aria-label="World and arena selection">
+        <div class="overlay-panel panel">
+          <header class="overlay-head">
+            <div><div class="eyebrow">All trails are open</div><h2 class="overlay-title">TURTLE ISLAND MAP</h2></div>
+            <button id="world-map-close" class="pixel-button">CLOSE</button>
+          </header>
+          <div class="overlay-body"><div id="world-grid"></div></div>
+        </div>
+      </section>
+
+      <section id="journal-screen" class="screen overlay" aria-label="Saulteaux word journal">
+        <div class="overlay-panel panel">
+          <header class="overlay-head">
+            <div><div class="eyebrow">Your quiet reading record</div><h2 class="overlay-title">WORD JOURNAL</h2></div>
+            <button id="journal-close" class="pixel-button">CLOSE</button>
+          </header>
+          <div class="overlay-body">
+            <div class="journal-tabs">
+              <button class="journal-tab active" data-filter="all">ALL 300</button>
+              <button class="journal-tab" data-filter="found">FOUND</button>
+              <button class="journal-tab" data-filter="mastered">QUIZ MASTERED</button>
+            </div>
+            <p id="journal-summary"></p>
+            <div id="journal-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pause-screen" class="screen overlay" aria-label="Pause menu">
+        <div class="menu-card panel">
+          <div class="eyebrow">Journey paused</div>
+          <h2>TRAIL MENU</h2>
+          <p id="pause-copy">Every world and arena remains open.</p>
+          <div class="menu-actions">
+            <button id="resume-button" class="pixel-button primary">RESUME</button>
+            <button id="pause-map-button" class="pixel-button">WORLD MAP</button>
+            <button id="pause-journal-button" class="pixel-button">WORD JOURNAL</button>
+            <button id="restart-button" class="pixel-button">RESTART ARENA</button>
+            <button id="return-title-button" class="pixel-button dark">OPENING SCREEN</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="complete-screen" class="screen overlay" aria-label="Arena complete">
+        <div class="menu-card panel">
+          <div class="eyebrow">Find round + Saulteaux quiz complete</div>
+          <h2 id="complete-title">ARENA COMPLETE</h2>
+          <div id="complete-stars">◆ ◆ ◆</div>
+          <p id="complete-copy">Six pictures found and six Saulteaux words remembered.</p>
+          <div class="menu-actions">
+            <button id="next-arena-button" class="pixel-button primary">NEXT ARENA</button>
+            <button id="replay-button" class="pixel-button">REPLAY ARENA</button>
+            <button id="complete-map-button" class="pixel-button dark">WORLD MAP</button>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var ROOT = 'saulteaux-preview/assets/';
+      var INLINE_ASSETS = {};
+      var INLINE_ROSTER = '';
+      var SAVE_KEY = 'tatawaw-saulteaux-cree-parity-v1';
+      var ROUND_SIZE = 6;
+      var HELP_DELAY = 7000;
+      var WORLD_ARENA_COUNTS = [5,4,7,6,5,12,11];
+      var WORLD_TITLES = [
+        'Water and Turtle Island',
+        'Forest and Meadow',
+        'Animal Trail',
+        'Wetlands and Sky',
+        'Berry Meadow and Garden',
+        'Home, Camp and Craft',
+        'People, Seasons and Teachings'
+      ];
+      var WORLD_SUBTITLES = [
+        'Water, shore, stone and the living island',
+        'Trees, leaves, meadow plants and woodland places',
+        'Animals, tracks and beings who share the land',
+        'Wet places, birds, weather and the open sky',
+        'Berries, garden foods and growing things',
+        'Home objects, clothing, tools, camp and craft',
+        'People, seasons, actions and teaching cards'
+      ];
+      var WORLD_PALETTES = [
+        ['#0b3b55','#167b83','#285a43','#80a95d'],
+        ['#153d45','#2e6b56','#6d863f','#c5a955'],
+        ['#152d3d','#35614e','#8a713d','#bd9951'],
+        ['#173851','#458c9a','#b8c8a0','#f0d481'],
+        ['#3c3341','#72604d','#8e4e4e','#ddb15c'],
+        ['#243841','#605345','#9d784e','#ead59d'],
+        ['#243345','#50716b','#ad6d4f','#f1cf87']
+      ];
+      var CROPS = [
+        [0,222,560,315],
+        [200,70,560,315],
+        [620,20,560,315],
+        [930,160,560,315],
+        [200,380,560,315],
+        [520,220,560,315],
+        [520,460,560,315]
+      ];
+      var ARENA_NAMES = [
+        ['First Shore','Turtle Bay','Stone Water','Island Edge','River Meeting'],
+        ['Birch Path','Spruce Shade','Meadow Light','Woodland Clearing'],
+        ['Track Crossing','Four-Legged Trail','Small Beings','Forest Neighbours','Animal Meadow','Quiet Tracks','Shared Land'],
+        ['Cattail Water','Open Sky','Bird Crossing','Rain Path','Frost Shore','Wetland Wind'],
+        ['Berry Patch','Garden Row','Growing Ground','Harvest Basket','Meadow Foods'],
+        ['Camp Door','Cooking Place','Clothing Line','Tool Bench','Craft Table','Home Corner','Work Yard','School Path','Warm Shelter','Woven Things','Daily Objects','Gathering Place'],
+        ['Family Circle','Season Wheel','Moon Path','People and Kin','Actions','Ways of Being','Teaching Place','Time and Weather','Community Words','Remembering','Homeward Teaching']
+      ];
+
+      var SLOT_LAYOUTS = [
+        [
+          [.16,.30,'water'],[.32,.63,'water'],[.50,.78,'water'],[.70,.31,'land'],
+          [.82,.58,'land'],[.58,.47,'land'],[.28,.43,'water'],[.72,.72,'land']
+        ],
+        [
+          [.18,.30,'plant'],[.34,.62,'plant'],[.53,.29,'plant'],[.73,.41,'animal'],
+          [.82,.68,'animal'],[.55,.73,'plant'],[.27,.76,'animal'],[.67,.58,'plant']
+        ],
+        [
+          [.16,.36,'animal'],[.34,.68,'animal'],[.52,.28,'animal'],[.73,.38,'animal'],
+          [.83,.67,'animal'],[.57,.75,'animal'],[.28,.52,'animal'],[.66,.56,'animal']
+        ],
+        [
+          [.17,.69,'water'],[.34,.75,'water'],[.52,.30,'sky'],[.70,.22,'sky'],
+          [.82,.50,'sky'],[.62,.69,'water'],[.28,.35,'sky'],[.78,.75,'water']
+        ],
+        [
+          [.16,.35,'plant'],[.33,.67,'food'],[.51,.29,'plant'],[.70,.42,'food'],
+          [.82,.69,'food'],[.56,.75,'plant'],[.27,.52,'food'],[.69,.61,'plant']
+        ],
+        [
+          [.16,.36,'home'],[.33,.68,'home'],[.51,.29,'home'],[.70,.39,'home'],
+          [.83,.68,'home'],[.57,.76,'home'],[.27,.52,'home'],[.68,.57,'home']
+        ],
+        [
+          [.17,.34,'people'],[.34,.67,'people'],[.51,.28,'season'],[.70,.39,'teaching'],
+          [.83,.67,'season'],[.57,.75,'teaching'],[.28,.51,'people'],[.68,.57,'teaching']
+        ]
+      ];
+
+      var canvas = document.getElementById('game-canvas');
+      var ctx = canvas.getContext('2d',{alpha:false});
+      var loadFill = document.getElementById('load-fill');
+      var loadNote = document.getElementById('load-note');
+      var hud = document.getElementById('hud');
+      var worldName = document.getElementById('world-name');
+      var arenaChip = document.getElementById('arena-chip');
+      var statusNode = document.getElementById('status');
+      var promptKicker = document.getElementById('prompt-kicker');
+      var targetSaulteau = document.getElementById('target-saulteau');
+      var targetEnglish = document.getElementById('target-english');
+      var promptMeta = document.getElementById('prompt-meta');
+      var eagleHeadCanvas = document.getElementById('eagle-head-canvas');
+      var targetArtCanvas = document.getElementById('target-art');
+      var worldGrid = document.getElementById('world-grid');
+      var journalList = document.getElementById('journal-list');
+      var journalSummary = document.getElementById('journal-summary');
+
+      var width = 960;
+      var height = 540;
+      var dpr = 1;
+      var lastFrame = 0;
+      var elapsed = 0;
+      var activeScreen = 'loading';
+      var overlayReturn = 'title';
+      var roster = [];
+      var campaign = [];
+      var worlds = [];
+      var currentArena = null;
+      var currentWorld = 0;
+      var phase = 'learn';
+      var targetOrder = [];
+      var targetPointer = 0;
+      var roundFound = {};
+      var targetStartedAt = 0;
+      var guideActive = false;
+      var guideUntil = 0;
+      var keys = {left:false,right:false,up:false,down:false};
+      var makwa = {x:280,y:390,speed:182,dir:2};
+      var mapImage = null;
+      var makwaSheet = null;
+      var eagleSheet = null;
+      var eagleHeadSheet = null;
+      var waveFrames = [];
+      var atlases = [];
+      var camera = {x:0,y:0,w:1672,h:941};
+      var cameraFrom = {x:0,y:0,w:1672,h:941};
+      var cameraTo = {x:0,y:0,w:1672,h:941};
+      var cameraStart = 0;
+      var cameraDuration = 0;
+      var objectPositions = [];
+      var save = loadSave();
+      var journalFilter = 'all';
+      var lastActionAt = 0;
+      var introSkipped = false;
+      var gamepadPrevious = [];
+      var musicEnabled = save.music !== false;
+      var audioContext = null;
+      var musicNextAt = 0;
+      var musicStep = 0;
+      var ART = {};
+
+      function normalize(value) {
+        return String(value || '').toLowerCase().replace(/[.,]/g,'').replace(/\s+/g,' ').trim();
+      }
+      function addArt(names,atlas,cell) {
+        for (var i=0;i<names.length;i++) ART[normalize(names[i])] = {atlas:atlas,cell:cell};
+      }
+      addArt(['A Star','Stars'],0,0); addArt(['Arrow'],0,1); addArt(['A Raven','Ravens'],0,2); addArt(['Puppies'],0,3); addArt(['Arrowhead'],0,4);
+      addArt(['A Beaver'],0,5); addArt(['Baby Beaver'],0,6); addArt(['squirrel'],0,7); addArt(['Buttons'],0,8); addArt(['tools'],0,9); addArt(['Bats'],0,10); addArt(['Berry basket'],0,11); addArt(['A Paddle'],0,12); addArt(['A mug','Camp mug'],0,13); addArt(['A pot','Cooking pot'],0,14); addArt(['A mat','Woven mat'],0,15); addArt(['Spruce cone'],0,16); addArt(['Birch leaf'],0,17); addArt(['Smooth stone'],0,18); addArt(['Cattail'],0,19);
+      addArt(['Wooden bench','Seats or places to sit'],1,0); addArt(['Small weaving loom','weaving'],1,1); addArt(['Braided cord','braids'],1,2); addArt(['Pronghorn'],1,3); addArt(['Deer'],1,4); addArt(['Teepee poles'],1,5); addArt(['Canoe paddle','Shovels or (paddles for rowing)'],1,6); addArt(['Shovel'],1,7); addArt(['Moccasin'],1,8); addArt(['A sock','More than one sock'],1,9); addArt(['Rocks (plural of asinēy-rock)'],1,10); addArt(['Pebbles, Rocks'],1,11); addArt(['Mountains'],1,12); addArt(['A green tree'],1,13); addArt(['A pail, A bucket'],1,14); addArt(['Flour'],1,15); addArt(['A potato','Potatoes'],1,16); addArt(['A piece of raw meat.'],1,17); addArt(['A riding saddle.'],1,18); addArt(['A rug'],1,19);
+      addArt(['Dogs.'],2,0); addArt(['April - Frog Moon'],2,1); addArt(['Clothing'],2,2); addArt(['A baby frog'],2,3); addArt(['A raspberry'],2,4); addArt(['An Axe'],2,5); addArt(['A fork.'],2,6); addArt(['A television'],2,7); addArt(['A small teaspoon.'],2,8); addArt(['Spoons'],2,9); addArt(['An Ant'],2,10); addArt(['A Louse'],2,11); addArt(['High Water'],2,12); addArt(['A firehall building'],2,13); addArt(['November - Frost Moon'],2,14); addArt(['A crow'],2,15); addArt(['Pepper'],2,16); addArt(['Porcupines.'],2,17); addArt(['It is smokey.'],2,18); addArt(['A small wolverine or a young one'],2,19);
+      addArt(['October - Freezing Moon'],3,0); addArt(['A skirt'],3,1); addArt(['Skirts'],3,2); addArt(['A pair of shorts'],3,3); addArt(['Eagles'],3,4); addArt(['Baby Fish'],3,5); addArt(['fish (one fish)'],3,6); addArt(['fish - more than one fish (plural)'],3,7); addArt(['It is cold.'],3,8); addArt(['School'],3,9); addArt(['A radio'],3,10); addArt(['A watermelon'],3,11); addArt(['Pigs'],3,12); addArt(['Snow'],3,13); addArt(['Wolf'],3,14); addArt(['Baby wolves'],3,15); addArt(['A corn'],3,16); addArt(['Loon'],3,17); addArt(['Bug or worm'],3,18); addArt(['A Catholic concept'],3,19);
+
+      function defaultSave() {
+        return {version:1,lastArena:'',completed:{},found:{},mastered:{},music:true};
+      }
+      function loadSave() {
+        try {
+          var parsed = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+          if (parsed && parsed.version === 1) return parsed;
+        } catch (error) {}
+        return defaultSave();
+      }
+      function persistSave() {
+        try { localStorage.setItem(SAVE_KEY,JSON.stringify(save)); } catch (error) {}
+      }
+      function assetUrl(path) { return INLINE_ASSETS[path] || path; }
+      function loadImage(path) {
+        return new Promise(function (resolve,reject) {
+          var image = new Image();
+          image.onload = function () { resolve(image); };
+          image.onerror = reject;
+          image.src = assetUrl(path);
+        });
+      }
+      function chroma(image) {
+        var c = document.createElement('canvas');
+        c.width = image.naturalWidth;
+        c.height = image.naturalHeight;
+        var cctx = c.getContext('2d');
+        cctx.drawImage(image,0,0);
+        var pixels = cctx.getImageData(0,0,c.width,c.height);
+        for (var i=0;i<pixels.data.length;i+=4) {
+          var r=pixels.data[i],g=pixels.data[i+1],b=pixels.data[i+2];
+          if (r>220 && g<95 && b>185) pixels.data[i+3]=0;
+        }
+        cctx.putImageData(pixels,0,0);
+        return c;
+      }
+      function parseCsv(text) {
+        var lines = String(text || '').trim().split(/\r?\n/);
+        if (!lines.length || !lines[0]) return [];
+        function parseLine(line) {
+          var result=[],value='',quoted=false;
+          for (var i=0;i<line.length;i++) {
+            var ch=line[i];
+            if (ch==='"' && line[i+1]==='"') { value+='"'; i++; }
+            else if (ch==='"') quoted=!quoted;
+            else if (ch===',' && !quoted) { result.push(value); value=''; }
+            else value+=ch;
+          }
+          result.push(value);
+          return result;
+        }
+        var headers=parseLine(lines[0]);
+        var rows=[];
+        for (var rowIndex=1;rowIndex<lines.length;rowIndex++) {
+          if (!lines[rowIndex].trim()) continue;
+          var cells=parseLine(lines[rowIndex]);
+          var row={};
+          for (var column=0;column<headers.length;column++) row[headers[column]]=cells[column] || '';
+          rows.push(row);
+        }
+        return rows;
+      }
+      function fallbackRoster() {
+        var seeds=[
+          ['1','Water','nipiy','land/season'],['1','A Star','ācahkōs','land/season'],
+          ['2','A green tree','askāhtik','object'],['3','Deer','atimw','living being'],
+          ['4','Eagles','kihēwak','living being'],['5','A raspberry','miskomin','object'],
+          ['6','A cup','minihkwācikan','object'],['7','Words','pēkiskwewina','teaching card']
+        ];
+        var output=[];
+        for (var i=0;i<300;i++) {
+          var seed=seeds[i%seeds.length];
+          output.push({world:seed[0],world_title:WORLD_TITLES[Number(seed[0])-1],english_gloss:seed[1]+' '+(Math.floor(i/seeds.length)+1),saulteau_source_form:seed[2],entry_role:seed[3]});
+        }
+        return output;
+      }
+      function categoryFor(row) {
+        var text=normalize((row.english_gloss||'')+' '+(row.entry_role||''));
+        if (/fish|water|river|lake|ocean|canoe|boat|paddle|frog|beaver|cattail/.test(text)) return 'water';
+        if (/eagle|raven|crow|loon|bird|bat|sky|rain|snow|frost|moon|star|wind|weather|cold|smok/.test(text)) return 'sky';
+        if (/tree|leaf|spruce|birch|forest|wood|cone|flower|grass|plant|meadow/.test(text)) return 'plant';
+        if (/berry|raspberry|watermelon|corn|potato|pepper|flour|bread|meat|food|garden/.test(text)) return 'food';
+        if (/dog|pupp|wolf|deer|moose|beaver|squirrel|porcupine|wolverine|pig|ant|louse|bug|worm|animal|living being/.test(text)) return 'animal';
+        if (/shirt|skirt|sock|moccasin|shorts|clothing|saddle|button|dress|pants|coat/.test(text)) return 'clothing';
+        if (/axe|fork|spoon|shovel|tool|radio|television|school|bench|loom|cord|pot|mug|cup|pail|bucket|mat|rug|teepee|home|camp|craft|object/.test(text)) return 'home';
+        if (/april|october|november|season|moon|time/.test(text)) return 'season';
+        if (/teaching card|act of|concept|word|language|being|doing|motion/.test(text)) return 'teaching';
+        if (/person|people|family|baby|child|man|woman|body|head|hand|foot|kin/.test(text)) return 'people';
+        return row.entry_role==='teaching card' ? 'teaching' : 'home';
+      }
+      function scoreForWorld(row,worldIndex) {
+        var category=categoryFor(row);
+        var score=0;
+        var desired=[
+          ['water','sky','plant'],
+          ['plant','animal'],
+          ['animal','people'],
+          ['water','sky','animal'],
+          ['food','plant'],
+          ['home','clothing','food'],
+          ['people','season','teaching','sky']
+        ][worldIndex];
+        if (desired.indexOf(category)>=0) score+=20;
+        if (String(row.world)===String(worldIndex+1)) score+=16;
+        if (worldIndex===2 && row.entry_role==='living being') score+=6;
+        if (worldIndex===6 && row.entry_role==='teaching card') score+=9;
+        if (worldIndex===5 && row.entry_role==='object') score+=5;
+        return score;
+      }
+      function buildCampaign(rows) {
+        var indexed=[];
+        for (var i=0;i<rows.length;i++) {
+          var copy={};
+          for (var key in rows[i]) if (Object.prototype.hasOwnProperty.call(rows[i],key)) copy[key]=rows[i][key];
+          copy._id='word-'+String(i+1);
+          copy._sourceIndex=i;
+          indexed.push(copy);
+        }
+        while (indexed.length<300) {
+          var clone={};
+          var source=indexed[indexed.length%Math.max(1,indexed.length)] || fallbackRoster()[0];
+          for (var cloneKey in source) if (Object.prototype.hasOwnProperty.call(source,cloneKey)) clone[cloneKey]=source[cloneKey];
+          clone._id='word-'+String(indexed.length+1);
+          clone._sourceIndex=indexed.length;
+          indexed.push(clone);
+        }
+        indexed=indexed.slice(0,300);
+        var buckets=[[],[],[],[],[],[],[]];
+        var overflow=[];
+        for (var world=0;world<7;world++) {
+          var own=indexed.filter(function (row) { return String(row.world)===String(world+1); });
+          own.sort(function (a,b) {
+            return scoreForWorld(b,world)-scoreForWorld(a,world) || a._sourceIndex-b._sourceIndex;
+          });
+          var capacity=WORLD_ARENA_COUNTS[world]*ROUND_SIZE;
+          buckets[world]=own.slice(0,capacity);
+          overflow=overflow.concat(own.slice(capacity));
+        }
+        var assigned={};
+        for (var bw=0;bw<buckets.length;bw++) {
+          for (var bi=0;bi<buckets[bw].length;bi++) assigned[buckets[bw][bi]._id]=true;
+        }
+        for (var ix=0;ix<indexed.length;ix++) if (!assigned[indexed[ix]._id] && overflow.indexOf(indexed[ix])<0) overflow.push(indexed[ix]);
+        for (var fillWorld=0;fillWorld<7;fillWorld++) {
+          var targetLength=WORLD_ARENA_COUNTS[fillWorld]*ROUND_SIZE;
+          while (buckets[fillWorld].length<targetLength && overflow.length) {
+            var bestIndex=0;
+            var bestScore=-999;
+            for (var oi=0;oi<overflow.length;oi++) {
+              var candidateScore=scoreForWorld(overflow[oi],fillWorld);
+              if (candidateScore>bestScore) { bestScore=candidateScore; bestIndex=oi; }
+            }
+            buckets[fillWorld].push(overflow.splice(bestIndex,1)[0]);
+          }
+        }
+        campaign=[];
+        worlds=[];
+        var globalIndex=0;
+        for (var wi=0;wi<7;wi++) {
+          var worldArenas=[];
+          for (var ai=0;ai<WORLD_ARENA_COUNTS[wi];ai++) {
+            var entries=buckets[wi].slice(ai*6,ai*6+6);
+            var arena={
+              id:'w'+String(wi+1)+'-a'+String(ai+1),
+              worldIndex:wi,
+              localIndex:ai,
+              globalIndex:globalIndex,
+              title:ARENA_NAMES[wi][ai] || ('Trail '+String(ai+1)),
+              entries:entries
+            };
+            for (var ei=0;ei<entries.length;ei++) {
+              entries[ei]._runtimeWorld=wi;
+              entries[ei]._arenaId=arena.id;
+            }
+            worldArenas.push(arena);
+            campaign.push(arena);
+            globalIndex++;
+          }
+          worlds.push({index:wi,title:WORLD_TITLES[wi],subtitle:WORLD_SUBTITLES[wi],arenas:worldArenas});
+        }
+      }
+
+      async function loadAssets() {
+        loadFill.style.width='12%';
+        loadNote.textContent='Loading Turtle Island…';
+        var paths=[
+          ROOT+'master/turtle-island-gba-style.png',
+          ROOT+'characters/makwa-walk-sheet-gba.png',
+          ROOT+'characters/eagle-flying-sheet-gba.png',
+          ROOT+'characters/eagle-prompt-sheet-gba.png'
+        ];
+        for (var atlas=1;atlas<=4;atlas++) paths.push(ROOT+'objects/object-atlas-0'+String(atlas)+'-gba.png');
+        for (var frame=0;frame<8;frame++) paths.push(ROOT+'water/frames/frame-'+String(frame<10?'0':'')+String(frame)+'.png');
+        var images=await Promise.all(paths.map(loadImage));
+        mapImage=images[0];
+        makwaSheet=chroma(images[1]);
+        eagleSheet=chroma(images[2]);
+        eagleHeadSheet=chroma(images[3]);
+        atlases=images.slice(4,8).map(chroma);
+        waveFrames=images.slice(8);
+        drawEagleHead();
+        loadFill.style.width='70%';
+        loadNote.textContent='Building 50 arenas from 300 entries…';
+        try {
+          if (INLINE_ROSTER) roster=parseCsv(INLINE_ROSTER);
+          else {
+            var response=await fetch('saulteaux-300-word-roster.csv',{cache:'no-store'});
+            if (!response.ok) throw new Error('roster');
+            roster=parseCsv(await response.text());
+          }
+        } catch (error) { roster=fallbackRoster(); }
+        buildCampaign(roster);
+        buildWorldMap();
+        renderJournal();
+        updateContinueButton();
+        loadFill.style.width='100%';
+        loadNote.textContent='Seven worlds and three hundred entries ready.';
+      }
+
+      function screen(id) { return document.getElementById(id); }
+      function setScreen(name) {
+        activeScreen=name;
+        var ids=['loading','dedication','title-screen','world-map-screen','journal-screen','pause-screen','complete-screen'];
+        for (var i=0;i<ids.length;i++) screen(ids[i]).classList.remove('active');
+        if (name==='loading') screen('loading').classList.add('active');
+        if (name==='dedication') screen('dedication').classList.add('active');
+        if (name==='title') screen('title-screen').classList.add('active');
+        if (name==='worldMap') screen('world-map-screen').classList.add('active');
+        if (name==='journal') screen('journal-screen').classList.add('active');
+        if (name==='pause') screen('pause-screen').classList.add('active');
+        if (name==='complete') screen('complete-screen').classList.add('active');
+        hud.classList.toggle('hidden',name!=='game');
+        if (name==='title' || name==='worldMap' || name==='journal') setCamera({x:0,y:0,w:1672,h:941},650);
+      }
+      function showStatus(text) {
+        statusNode.textContent=text;
+        statusNode.classList.add('show');
+        clearTimeout(showStatus.timer);
+        showStatus.timer=setTimeout(function () { statusNode.classList.remove('show'); },1900);
+      }
+      function updateContinueButton() {
+        var button=screen('continue-button');
+        button.disabled=!save.lastArena;
+        button.style.opacity=save.lastArena?'1':'.45';
+      }
+      function skipDedication() {
+        if (introSkipped) return;
+        introSkipped=true;
+        screen('dedication').classList.add('fade');
+        setTimeout(function () {
+          setScreen('title');
+          screen('dedication').classList.remove('fade');
+        },780);
+      }
+      function showDedication() {
+        setScreen('dedication');
+        setTimeout(skipDedication,3600);
+      }
+
+      function resize() {
+        var rect=canvas.getBoundingClientRect();
+        dpr=Math.min(window.devicePixelRatio||1,2);
+        width=Math.max(320,Math.round(rect.width*dpr));
+        height=Math.max(240,Math.round(rect.height*dpr));
+        canvas.width=width;
+        canvas.height=height;
+        drawEagleHead();
+        drawTargetArt();
+      }
+      function setCamera(target,duration) {
+        var now=performance.now();
+        cameraFrom=currentCamera(now);
+        cameraTo={x:target.x,y:target.y,w:target.w,h:target.h};
+        cameraStart=now;
+        cameraDuration=duration||0;
+      }
+      function currentCamera(now) {
+        if (!cameraDuration) return {x:cameraTo.x,y:cameraTo.y,w:cameraTo.w,h:cameraTo.h};
+        var t=Math.min(1,(now-cameraStart)/cameraDuration);
+        var eased=(1-Math.cos(t*Math.PI))/2;
+        camera={
+          x:cameraFrom.x+(cameraTo.x-cameraFrom.x)*eased,
+          y:cameraFrom.y+(cameraTo.y-cameraFrom.y)*eased,
+          w:cameraFrom.w+(cameraTo.w-cameraFrom.w)*eased,
+          h:cameraFrom.h+(cameraTo.h-cameraFrom.h)*eased
+        };
+        return camera;
+      }
+      function coverView(view) {
+        var canvasAspect=width/height;
+        var sourceAspect=view.w/view.h;
+        var result={x:view.x,y:view.y,w:view.w,h:view.h};
+        if (canvasAspect>sourceAspect) {
+          var desiredHeight=view.w/canvasAspect;
+          result.y=view.y+(view.h-desiredHeight)/2;
+          result.h=desiredHeight;
+        } else {
+          var desiredWidth=view.h*canvasAspect;
+          result.x=view.x+(view.w-desiredWidth)/2;
+          result.w=desiredWidth;
+        }
+        return result;
+      }
+      function screenPoint(point,view) {
+        var fitted=coverView(view);
+        return {x:(point.x-fitted.x)/fitted.w*width,y:(point.y-fitted.y)/fitted.h*height,s:width/fitted.w};
+      }
+      function drawMap(view) {
+        var fitted=coverView(view);
+        ctx.fillStyle=WORLD_PALETTES[currentWorld][0];
+        ctx.fillRect(0,0,width,height);
+        ctx.imageSmoothingEnabled=false;
+        ctx.drawImage(mapImage,fitted.x,fitted.y,fitted.w,fitted.h,0,0,width,height);
+        var wave=waveFrames[Math.floor(elapsed/150)%Math.max(1,waveFrames.length)];
+        if (wave) {
+          ctx.save();
+          ctx.globalAlpha=activeScreen === 'game' ? .10 : .17;
+          ctx.globalCompositeOperation='screen';
+          var tile=Math.max(150,Math.min(width,height)*.42);
+          for (var y=-tile;y<height+tile;y+=tile) {
+            for (var x=-tile;x<width+tile;x+=tile) ctx.drawImage(wave,x,y,tile,tile);
+          }
+          ctx.restore();
+        }
+        if (activeScreen!=='game') {
+          ctx.fillStyle='rgba(2,22,28,.2)';
+          ctx.fillRect(0,0,width,height);
+        }
+      }
+      function artFor(row) {
+        var key=normalize(row && row.english_gloss);
+        return ART[key] || ART[key.replace(/^a |^an |^the /,'')] || null;
+      }
+      function drawAtlasSprite(targetContext,info,cx,cy,size,alpha) {
+        if (!info || !atlases[info.atlas]) return false;
+        var source=atlases[info.atlas];
+        var cellW=source.width/5;
+        var cellH=source.height/4;
+        var sx=(info.cell%5)*cellW;
+        var sy=Math.floor(info.cell/5)*cellH;
+        targetContext.save();
+        targetContext.globalAlpha=alpha===undefined?1:alpha;
+        targetContext.imageSmoothingEnabled=false;
+        targetContext.drawImage(source,sx,sy,cellW,cellH,cx-size/2,cy-size/2,size,size);
+        targetContext.restore();
+        return true;
+      }
+      function drawGeneratedIcon(targetContext,row,cx,cy,size,alpha) {
+        var category=categoryFor(row);
+        var palette=WORLD_PALETTES[row._runtimeWorld||0];
+        var unit=Math.max(2,Math.floor(size/16));
+        var left=Math.round(cx-size*.36);
+        var top=Math.round(cy-size*.36);
+        targetContext.save();
+        targetContext.globalAlpha=alpha===undefined?1:alpha;
+        targetContext.imageSmoothingEnabled=false;
+        targetContext.fillStyle='rgba(18,44,50,.24)';
+        targetContext.fillRect(left+unit*2,top+unit*12,unit*10,unit*2);
+        if (category==='water') {
+          targetContext.fillStyle='#5ec6cf'; targetContext.fillRect(left+unit*3,top+unit*6,unit*7,unit*5);
+          targetContext.fillRect(left+unit*10,top+unit*7,unit*3,unit*3);
+          targetContext.fillStyle='#163b4c'; targetContext.fillRect(left+unit*4,top+unit*7,unit,unit);
+          targetContext.fillStyle='#f2d779'; targetContext.fillRect(left+unit*2,top+unit*8,unit*2,unit);
+        } else if (category==='sky') {
+          targetContext.fillStyle='#f5e7be'; targetContext.fillRect(left+unit*3,top+unit*6,unit*8,unit*3);
+          targetContext.fillRect(left+unit*5,top+unit*4,unit*4,unit*5);
+          targetContext.fillStyle='#6bbbc1'; targetContext.fillRect(left+unit*5,top+unit*11,unit,unit*2);
+          targetContext.fillRect(left+unit*9,top+unit*10,unit,unit*2);
+        } else if (category==='plant') {
+          targetContext.fillStyle='#6a442b'; targetContext.fillRect(left+unit*7,top+unit*7,unit*2,unit*6);
+          targetContext.fillStyle=palette[2]; targetContext.fillRect(left+unit*3,top+unit*3,unit*10,unit*7);
+          targetContext.fillStyle=palette[3]; targetContext.fillRect(left+unit*5,top+unit*2,unit*5,unit*3);
+        } else if (category==='animal') {
+          targetContext.fillStyle='#7a5238'; targetContext.fillRect(left+unit*3,top+unit*6,unit*8,unit*5);
+          targetContext.fillRect(left+unit*10,top+unit*4,unit*3,unit*5);
+          targetContext.fillRect(left+unit*4,top+unit*11,unit*2,unit*3);
+          targetContext.fillRect(left+unit*9,top+unit*11,unit*2,unit*3);
+          targetContext.fillStyle='#f4dfaa'; targetContext.fillRect(left+unit*11,top+unit*5,unit,unit);
+        } else if (category==='food') {
+          targetContext.fillStyle='#8f4150'; targetContext.fillRect(left+unit*4,top+unit*5,unit*8,unit*7);
+          targetContext.fillStyle='#d9b052'; targetContext.fillRect(left+unit*3,top+unit*10,unit*10,unit*3);
+          targetContext.fillStyle='#4f7a42'; targetContext.fillRect(left+unit*7,top+unit*3,unit*3,unit*3);
+        } else if (category==='clothing') {
+          targetContext.fillStyle='#577b93'; targetContext.fillRect(left+unit*5,top+unit*4,unit*6,unit*9);
+          targetContext.fillRect(left+unit*2,top+unit*5,unit*3,unit*5);
+          targetContext.fillRect(left+unit*11,top+unit*5,unit*3,unit*5);
+          targetContext.fillStyle='#f2d779'; targetContext.fillRect(left+unit*7,top+unit*5,unit*2,unit);
+        } else if (category==='people') {
+          targetContext.fillStyle='#a86d4e'; targetContext.fillRect(left+unit*6,top+unit*2,unit*4,unit*4);
+          targetContext.fillStyle='#315c79'; targetContext.fillRect(left+unit*5,top+unit*6,unit*6,unit*7);
+          targetContext.fillRect(left+unit*3,top+unit*7,unit*2,unit*5);
+          targetContext.fillRect(left+unit*11,top+unit*7,unit*2,unit*5);
+        } else if (category==='season') {
+          targetContext.fillStyle='#f3c35c'; targetContext.fillRect(left+unit*5,top+unit*4,unit*6,unit*6);
+          targetContext.fillStyle='#fff1c7'; targetContext.fillRect(left+unit*7,top+unit*2,unit*2,unit*2);
+          targetContext.fillRect(left+unit*7,top+unit*11,unit*2,unit*2);
+          targetContext.fillRect(left+unit*3,top+unit*7,unit*2,unit*2);
+          targetContext.fillRect(left+unit*12,top+unit*7,unit*2,unit*2);
+        } else if (category==='teaching') {
+          targetContext.fillStyle='#f0d99e'; targetContext.fillRect(left+unit*3,top+unit*3,unit*10,unit*10);
+          targetContext.fillStyle='#8f4150'; targetContext.fillRect(left+unit*5,top+unit*6,unit*6,unit);
+          targetContext.fillRect(left+unit*5,top+unit*9,unit*5,unit);
+          targetContext.fillStyle='#875d28'; targetContext.fillRect(left+unit*2,top+unit*2,unit*2,unit*12);
+          targetContext.fillRect(left+unit*13,top+unit*2,unit*2,unit*12);
+        } else {
+          targetContext.fillStyle='#875d28'; targetContext.fillRect(left+unit*3,top+unit*7,unit*10,unit*6);
+          targetContext.fillStyle='#b8a266'; targetContext.fillRect(left+unit*5,top+unit*4,unit*6,unit*5);
+          targetContext.fillStyle='#102c32'; targetContext.fillRect(left+unit*7,top+unit*8,unit*2,unit*2);
+        }
+        targetContext.restore();
+      }
+      function drawObjectArt(targetContext,row,cx,cy,size,alpha) {
+        if (!drawAtlasSprite(targetContext,artFor(row),cx,cy,size,alpha)) drawGeneratedIcon(targetContext,row,cx,cy,size,alpha);
+      }
+      function drawTargetArt() {
+        var c=targetArtCanvas;
+        var ratio=Math.min(window.devicePixelRatio||1,2);
+        c.width=64*ratio;
+        c.height=64*ratio;
+        var cctx=c.getContext('2d');
+        cctx.imageSmoothingEnabled=false;
+        cctx.fillStyle='#d5c58f';
+        cctx.fillRect(0,0,c.width,c.height);
+        var row=getTarget();
+        if (row) drawObjectArt(cctx,row,c.width/2,c.height/2,c.width*.86,1);
+      }
+      function drawEagleHead() {
+        if (!eagleHeadSheet) return;
+        var ratio=Math.min(window.devicePixelRatio||1,2);
+        eagleHeadCanvas.width=64*ratio;
+        eagleHeadCanvas.height=64*ratio;
+        var ectx=eagleHeadCanvas.getContext('2d');
+        ectx.clearRect(0,0,eagleHeadCanvas.width,eagleHeadCanvas.height);
+        ectx.imageSmoothingEnabled=false;
+        ectx.drawImage(eagleHeadSheet,0,0,eagleHeadSheet.width/2,eagleHeadSheet.height/2,0,0,eagleHeadCanvas.width,eagleHeadCanvas.height);
+      }
+      function bestSlotScore(category,slotTag) {
+        if (category===slotTag) return 10;
+        if (category==='clothing' && slotTag==='home') return 8;
+        if (category==='food' && (slotTag==='home'||slotTag==='plant')) return 7;
+        if (category==='sky' && slotTag==='season') return 6;
+        if (category==='teaching' && slotTag==='people') return 6;
+        if (category==='animal' && slotTag==='plant') return 5;
+        return 1;
+      }
+      function assignObjectPositions(arena) {
+        var slots=SLOT_LAYOUTS[arena.worldIndex].slice();
+        var crop=CROPS[arena.worldIndex];
+        var used={};
+        var positions=[];
+        for (var i=0;i<arena.entries.length;i++) {
+          var category=categoryFor(arena.entries[i]);
+          var best=-1,bestScore=-1;
+          for (var slotIndex=0;slotIndex<slots.length;slotIndex++) {
+            if (used[slotIndex]) continue;
+            var score=bestSlotScore(category,slots[slotIndex][2]);
+            if (score>bestScore) { bestScore=score; best=slotIndex; }
+          }
+          if (best<0) best=i%slots.length;
+          used[best]=true;
+          positions.push({
+            x:crop[0]+crop[2]*slots[best][0],
+            y:crop[1]+crop[3]*slots[best][1],
+            tag:slots[best][2]
+          });
+        }
+        return positions;
+      }
+      function drawObjects(view) {
+        if (!currentArena) return;
+        var baseSize=Math.max(46,Math.min(width,height)*.14);
+        for (var i=0;i<currentArena.entries.length;i++) {
+          var row=currentArena.entries[i];
+          var point=screenPoint(objectPositions[i],view);
+          var found=!!roundFound[i];
+          var targetIndex=targetOrder[targetPointer];
+          var isTarget=i===targetIndex;
+          var alpha=found ? .35 : 1;
+          if (guideActive && isTarget) {
+            ctx.save();
+            ctx.strokeStyle='#f3c35c';
+            ctx.lineWidth=Math.max(3,dpr*2);
+            ctx.setLineDash([8*dpr,5*dpr]);
+            ctx.beginPath();
+            ctx.arc(point.x,point.y,baseSize*.5,0,Math.PI*2);
+            ctx.stroke();
+            ctx.restore();
+          }
+          drawObjectArt(ctx,row,point.x,point.y,baseSize,alpha);
+        }
+      }
+      function drawMakwa(view) {
+        if (!makwaSheet) return;
+        var point=screenPoint(makwa,view);
+        var moving=keys.left||keys.right||keys.up||keys.down;
+        var frame=moving?Math.floor(elapsed/135)%4:0;
+        var sx=frame*makwaSheet.width/4;
+        var sy=makwa.dir*makwaSheet.height/4;
+        var size=Math.max(68,Math.min(width,height)*.16);
+        ctx.imageSmoothingEnabled=false;
+        ctx.drawImage(makwaSheet,sx,sy,makwaSheet.width/4,makwaSheet.height/4,point.x-size*.5,point.y-size*.62,size,size);
+      }
+      function drawEagle(view) {
+        if (!currentArena || !eagleSheet || !getTarget()) return;
+        var targetIndex=targetOrder[targetPointer];
+        var targetPoint=screenPoint(objectPositions[targetIndex],view);
+        var ex,ey;
+        if (guideActive) {
+          ex=targetPoint.x;
+          ey=targetPoint.y-Math.max(45,height*.08);
+          ctx.save();
+          ctx.globalAlpha=.58;
+          ctx.strokeStyle='#f3c35c';
+          ctx.lineWidth=Math.max(2,dpr*2);
+          ctx.setLineDash([7*dpr,5*dpr]);
+          ctx.beginPath();
+          ctx.moveTo(ex,ey+20*dpr);
+          ctx.lineTo(targetPoint.x,targetPoint.y-20*dpr);
+          ctx.stroke();
+          ctx.restore();
+        } else if (phase==='quiz') {
+          ex=width*.5+Math.sin(elapsed*.0013)*width*.08;
+          ey=Math.max(64*dpr,height*.12);
+        } else {
+          ex=width*.52+Math.sin(elapsed*.001)*width*.18;
+          ey=Math.max(70*dpr,height*.16+Math.sin(elapsed*.004)*10*dpr);
+        }
+        var frame=Math.floor(elapsed/120)%8;
+        var cellW=eagleSheet.width/4;
+        var cellH=eagleSheet.height/2;
+        var size=Math.max(74,Math.min(width,height)*.17);
+        ctx.imageSmoothingEnabled=false;
+        ctx.drawImage(eagleSheet,(frame%4)*cellW,Math.floor(frame/4)*cellH,cellW,cellH,ex-size*.52,ey-size*.4,size,size*.75);
+      }
+      function render(now) {
+        if (!mapImage) return;
+        var view=currentCamera(now||performance.now());
+        drawMap(view);
+        if (activeScreen==='game' && currentArena) {
+          drawObjects(view);
+          drawEagle(view);
+          drawMakwa(view);
+        }
+      }
+
+      function getTarget() {
+        if (!currentArena || targetPointer>=targetOrder.length) return null;
+        return currentArena.entries[targetOrder[targetPointer]];
+      }
+      function updatePrompt() {
+        var row=getTarget();
+        if (!row) return;
+        var number=targetPointer+1;
+        if (phase==='quiz') {
+          promptKicker.textContent='Quiz — find this Saulteaux word';
+          targetSaulteau.textContent=row.saulteau_source_form||'—';
+          targetEnglish.textContent='';
+          promptMeta.innerHTML='Quiz '+String(number)+' of 6<br>Saulteaux only';
+        } else {
+          promptKicker.textContent=number===1?'Eagle asks you to find':'Find the next picture';
+          targetSaulteau.textContent=row.saulteau_source_form||'—';
+          targetEnglish.textContent=row.english_gloss||'';
+          promptMeta.innerHTML='Find '+String(number)+' of 6<br>Move, then press A';
+        }
+        drawTargetArt();
+      }
+      function resetTargetTimer() {
+        targetStartedAt=performance.now();
+        guideActive=false;
+        guideUntil=0;
+      }
+      function shuffledIndices(length,seed) {
+        var array=[];
+        for (var i=0;i<length;i++) array.push(i);
+        var state=(seed+1)*9301+49297;
+        for (var j=array.length-1;j>0;j--) {
+          state=(state*233280+12345)%2147483647;
+          var index=state%(j+1);
+          var temp=array[j]; array[j]=array[index]; array[index]=temp;
+        }
+        return array;
+      }
+      function startArena(arenaId) {
+        var arena=null;
+        for (var i=0;i<campaign.length;i++) if (campaign[i].id===arenaId) arena=campaign[i];
+        if (!arena) arena=campaign[0];
+        currentArena=arena;
+        currentWorld=arena.worldIndex;
+        save.lastArena=arena.id;
+        persistSave();
+        phase='learn';
+        targetOrder=[0,1,2,3,4,5];
+        targetPointer=0;
+        roundFound={};
+        objectPositions=assignObjectPositions(arena);
+        var crop=CROPS[currentWorld];
+        makwa.x=crop[0]+crop[2]*.50;
+        makwa.y=crop[1]+crop[3]*.58;
+        makwa.dir=2;
+        worldName.textContent=WORLD_TITLES[currentWorld];
+        arenaChip.textContent='Arena '+String(arena.globalIndex+1)+' of 50 · '+arena.title;
+        setCamera({x:crop[0],y:crop[1],w:crop[2],h:crop[3]},850);
+        setScreen('game');
+        resetTargetTimer();
+        updatePrompt();
+        showStatus('Arena ready — find six pictures');
+        resumeMusic();
+      }
+      function nearestObject() {
+        if (!currentArena) return {index:-1,distance:Infinity};
+        var best={index:-1,distance:Infinity};
+        for (var i=0;i<objectPositions.length;i++) {
+          if (roundFound[i]) continue;
+          var distance=Math.hypot(makwa.x-objectPositions[i].x,makwa.y-objectPositions[i].y);
+          if (distance<best.distance) best={index:i,distance:distance};
+        }
+        return best;
+      }
+      function action() {
+        if (activeScreen==='dedication') { skipDedication(); return; }
+        if (activeScreen!=='game' || !currentArena) return;
+        var near=nearestObject();
+        var targetIndex=targetOrder[targetPointer];
+        var interactionRadius=CROPS[currentWorld][2]*.12;
+        if (near.distance>interactionRadius) {
+          guideActive=true;
+          guideUntil=phase==='quiz'?performance.now()+2300:0;
+          showStatus('Move closer — the eagle will guide you');
+          return;
+        }
+        if (near.index!==targetIndex) {
+          guideActive=true;
+          guideUntil=phase==='quiz'?performance.now()+2300:0;
+          targetStartedAt=performance.now();
+          showStatus('That is another picture — follow the eagle');
+          return;
+        }
+        roundFound[targetIndex]=true;
+        var row=currentArena.entries[targetIndex];
+        save.found[row._id]=true;
+        if (phase==='quiz') save.mastered[row._id]=true;
+        persistSave();
+        targetPointer++;
+        guideActive=false;
+        if (targetPointer>=targetOrder.length) {
+          if (phase==='learn') beginQuiz();
+          else finishArena();
+          return;
+        }
+        resetTargetTimer();
+        updatePrompt();
+        showStatus(phase==='quiz'?'Correct — remember the next word':'Picture found — next word');
+      }
+      function beginQuiz() {
+        phase='quiz';
+        targetOrder=shuffledIndices(6,currentArena.globalIndex+17);
+        targetPointer=0;
+        roundFound={};
+        resetTargetTimer();
+        updatePrompt();
+        showStatus('Quiz time — Saulteaux words only');
+      }
+      function finishArena() {
+        save.completed[currentArena.id]=true;
+        persistSave();
+        buildWorldMap();
+        renderJournal();
+        screen('complete-title').textContent=currentArena.title.toUpperCase()+' COMPLETE';
+        var masteredCount=Object.keys(save.mastered).length;
+        screen('complete-copy').textContent='Six pictures found and six Saulteaux words remembered. '+String(masteredCount)+' of 300 entries are quiz-mastered.';
+        var next=currentArena.globalIndex+1<campaign.length?campaign[currentArena.globalIndex+1]:campaign[0];
+        screen('next-arena-button').textContent=currentArena.globalIndex+1<campaign.length?'NEXT ARENA':'RETURN TO FIRST ARENA';
+        screen('next-arena-button').setAttribute('data-next',next.id);
+        setScreen('complete');
+        updateContinueButton();
+      }
+      function updateGame(dt,now) {
+        if (activeScreen!=='game' || !currentArena) return;
+        pollGamepad();
+        var dx=(keys.right?1:0)-(keys.left?1:0);
+        var dy=(keys.down?1:0)-(keys.up?1:0);
+        var length=Math.hypot(dx,dy)||1;
+        if (dx<0) makwa.dir=1;
+        else if (dx>0) makwa.dir=2;
+        else if (dy<0) makwa.dir=0;
+        else if (dy>0) makwa.dir=3;
+        var crop=CROPS[currentWorld];
+        makwa.x=Math.max(crop[0]+30,Math.min(crop[0]+crop[2]-30,makwa.x+dx/length*makwa.speed*dt));
+        makwa.y=Math.max(crop[1]+34,Math.min(crop[1]+crop[3]-28,makwa.y+dy/length*makwa.speed*dt));
+        if (!guideActive && now-targetStartedAt>=HELP_DELAY) {
+          guideActive=true;
+          guideUntil=phase==='quiz'?now+2300:0;
+          showStatus('The eagle is showing the correct picture');
+        }
+        if (guideActive && guideUntil && now>=guideUntil) {
+          guideActive=false;
+          guideUntil=0;
+          targetStartedAt=now;
+        }
+      }
+
+      function completedCountForWorld(worldIndex) {
+        var count=0;
+        var list=worlds[worldIndex].arenas;
+        for (var i=0;i<list.length;i++) if (save.completed[list[i].id]) count++;
+        return count;
+      }
+      function buildWorldMap() {
+        worldGrid.innerHTML='';
+        for (var wi=0;wi<worlds.length;wi++) {
+          var world=worlds[wi];
+          var completed=completedCountForWorld(wi);
+          var card=document.createElement('article');
+          card.className='world-card';
+          card.innerHTML='<h3>'+String(wi+1)+' · '+escapeHtml(world.title)+'</h3>'+
+            '<p>'+escapeHtml(world.subtitle)+'</p>'+
+            '<div class="world-progress"><span>'+String(completed)+'/'+String(world.arenas.length)+'</span><div class="mini-track"><div class="mini-fill" style="width:'+String(world.arenas.length?completed/world.arenas.length*100:0)+'%"></div></div></div>';
+          var arenaGrid=document.createElement('div');
+          arenaGrid.className='arena-grid';
+          for (var ai=0;ai<world.arenas.length;ai++) {
+            var arena=world.arenas[ai];
+            var button=document.createElement('button');
+            button.className='arena-button'+(save.completed[arena.id]?' complete':'')+(currentArena&&currentArena.id===arena.id?' current':'');
+            button.setAttribute('data-arena',arena.id);
+            button.innerHTML=String(ai+1)+'<br>'+escapeHtml(arena.title);
+            button.addEventListener('click',function (event) { startArena(event.currentTarget.getAttribute('data-arena')); });
+            arenaGrid.appendChild(button);
+          }
+          card.appendChild(arenaGrid);
+          worldGrid.appendChild(card);
+        }
+      }
+      function escapeHtml(value) {
+        return String(value||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+      function renderJournal() {
+        if (!roster.length) return;
+        journalList.innerHTML='';
+        var foundCount=Object.keys(save.found).length;
+        var masteredCount=Object.keys(save.mastered).length;
+        journalSummary.textContent=String(foundCount)+' found · '+String(masteredCount)+' quiz-mastered · progress saves on this phone';
+        var runtimeRows=[];
+        for (var i=0;i<campaign.length;i++) runtimeRows=runtimeRows.concat(campaign[i].entries);
+        runtimeRows.sort(function (a,b) { return a._sourceIndex-b._sourceIndex; });
+        for (var ri=0;ri<runtimeRows.length;ri++) {
+          var row=runtimeRows[ri];
+          var found=!!save.found[row._id];
+          var mastered=!!save.mastered[row._id];
+          if (journalFilter==='found' && !found) continue;
+          if (journalFilter==='mastered' && !mastered) continue;
+          var entry=document.createElement('article');
+          entry.className='journal-entry'+(found?' found':'')+(mastered?' mastered':'');
+          entry.innerHTML='<div class="journal-number">'+String(row._sourceIndex+1)+'</div>'+
+            '<div><div class="journal-word">'+escapeHtml(row.saulteau_source_form||'—')+'</div><div class="journal-gloss">'+escapeHtml(row.english_gloss||'')+'</div></div>'+
+            '<div class="journal-state">'+(mastered?'mastered':found?'found':'not found')+'</div>';
+          journalList.appendChild(entry);
+        }
+      }
+      function openWorldMap(returnTo) {
+        overlayReturn=returnTo||activeScreen;
+        buildWorldMap();
+        setScreen('worldMap');
+      }
+      function openJournal(returnTo) {
+        overlayReturn=returnTo||activeScreen;
+        renderJournal();
+        setScreen('journal');
+      }
+      function closeOverlay() {
+        if (overlayReturn==='game' && currentArena) {
+          var crop=CROPS[currentWorld];
+          setCamera({x:crop[0],y:crop[1],w:crop[2],h:crop[3]},550);
+          setScreen('game');
+          resetTargetTimer();
+        } else setScreen('title');
+      }
+      function pauseGame() {
+        if (activeScreen==='game') {
+          overlayReturn='game';
+          setScreen('pause');
+        }
+      }
+      function goTitle() {
+        setScreen('title');
+        updateContinueButton();
+      }
+
+      function resumeAudioContext() {
+        if (!musicEnabled) return;
+        var AudioClass=window.AudioContext||window.webkitAudioContext;
+        if (!AudioClass) return;
+        if (!audioContext) audioContext=new AudioClass();
+        if (audioContext.state==='suspended') audioContext.resume();
+        musicNextAt=audioContext.currentTime+.05;
+      }
+      function resumeMusic() { resumeAudioContext(); }
+      function scheduleMusic() {
+        if (!musicEnabled || !audioContext || audioContext.state!=='running') return;
+        var melody=[0,4,7,9,7,4,2,4,0,2,4,7,4,2,-3,2];
+        while (musicNextAt<audioContext.currentTime+.35) {
+          var semitone=melody[musicStep%melody.length];
+          var frequency=220*Math.pow(2,semitone/12);
+          var oscillator=audioContext.createOscillator();
+          var gain=audioContext.createGain();
+          oscillator.type=musicStep%4===0?'triangle':'sine';
+          oscillator.frequency.value=frequency;
+          gain.gain.setValueAtTime(0.0001,musicNextAt);
+          gain.gain.exponentialRampToValueAtTime(0.032,musicNextAt+.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001,musicNextAt+.34);
+          oscillator.connect(gain);
+          gain.connect(audioContext.destination);
+          oscillator.start(musicNextAt);
+          oscillator.stop(musicNextAt+.36);
+          musicNextAt+=.48;
+          musicStep++;
+        }
+      }
+      function toggleMusic() {
+        musicEnabled=!musicEnabled;
+        save.music=musicEnabled;
+        persistSave();
+        screen('music-toggle').textContent='MUSIC: '+(musicEnabled?'ON':'OFF');
+        if (musicEnabled) resumeAudioContext();
+        else if (audioContext && audioContext.state==='running') audioContext.suspend();
+      }
+
+      function bindHold(id,key) {
+        var element=screen(id);
+        function down(event) { event.preventDefault(); keys[key]=true; element.classList.add('pressed'); }
+        function up(event) { event.preventDefault(); keys[key]=false; element.classList.remove('pressed'); }
+        element.addEventListener('touchstart',down,{passive:false});
+        element.addEventListener('touchend',up,{passive:false});
+        element.addEventListener('touchcancel',up,{passive:false});
+        element.addEventListener('mousedown',down);
+        window.addEventListener('mouseup',up);
+        element.addEventListener('mouseleave',up);
+      }
+      function guardedAction(event) {
+        if (event) event.preventDefault();
+        var now=performance.now();
+        if (now-lastActionAt<230) return;
+        lastActionAt=now;
+        resumeAudioContext();
+        action();
+      }
+      function bindPress(id,handler) {
+        var element=screen(id);
+        element.addEventListener('touchstart',function (event) { event.preventDefault(); handler(event); },{passive:false});
+        element.addEventListener('mousedown',function (event) { event.preventDefault(); handler(event); });
+      }
+      function keyDirection(key) {
+        var map={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',a:'left',d:'right',w:'up',s:'down',A:'left',D:'right',W:'up',S:'down'};
+        return map[key]||null;
+      }
+      function pollGamepad() {
+        if (!navigator.getGamepads) return;
+        var pads=navigator.getGamepads();
+        var pad=pads&&pads[0];
+        if (!pad) return;
+        var axisX=pad.axes&&pad.axes.length?pad.axes[0]:0;
+        var axisY=pad.axes&&pad.axes.length>1?pad.axes[1]:0;
+        keys.left=axisX<-.35 || !!(pad.buttons[14]&&pad.buttons[14].pressed);
+        keys.right=axisX>.35 || !!(pad.buttons[15]&&pad.buttons[15].pressed);
+        keys.up=axisY<-.35 || !!(pad.buttons[12]&&pad.buttons[12].pressed);
+        keys.down=axisY>.35 || !!(pad.buttons[13]&&pad.buttons[13].pressed);
+        var actions=[
+          {index:0,fn:guardedAction},
+          {index:1,fn:pauseGame},
+          {index:8,fn:function () { openJournal('game'); }},
+          {index:9,fn:function () { openWorldMap('game'); }}
+        ];
+        for (var i=0;i<actions.length;i++) {
+          var pressed=!!(pad.buttons[actions[i].index]&&pad.buttons[actions[i].index].pressed);
+          if (pressed&&!gamepadPrevious[actions[i].index]) actions[i].fn();
+          gamepadPrevious[actions[i].index]=pressed;
+        }
+      }
+
+      bindHold('left','left'); bindHold('right','right'); bindHold('up','up'); bindHold('down','down');
+      bindPress('button-a',guardedAction);
+      bindPress('button-b',pauseGame);
+      bindPress('start-button',function () { if (activeScreen==='game') openWorldMap('game'); });
+      bindPress('select-button',function () { if (activeScreen==='game') openJournal('game'); });
+      screen('dedication').addEventListener('touchstart',function (event) { event.preventDefault(); skipDedication(); },{passive:false});
+      screen('dedication').addEventListener('mousedown',skipDedication);
+      screen('begin-button').addEventListener('click',function () {
+        resumeAudioContext();
+        var next=campaign[0];
+        for (var i=0;i<campaign.length;i++) if (!save.completed[campaign[i].id]) { next=campaign[i]; break; }
+        startArena(next.id);
+      });
+      screen('continue-button').addEventListener('click',function () { resumeAudioContext(); startArena(save.lastArena||campaign[0].id); });
+      screen('title-map-button').addEventListener('click',function () { resumeAudioContext(); openWorldMap('title'); });
+      screen('music-toggle').addEventListener('click',toggleMusic);
+      screen('world-map-close').addEventListener('click',closeOverlay);
+      screen('journal-close').addEventListener('click',closeOverlay);
+      screen('resume-button').addEventListener('click',function () { closeOverlay(); });
+      screen('pause-map-button').addEventListener('click',function () { openWorldMap('game'); });
+      screen('pause-journal-button').addEventListener('click',function () { openJournal('game'); });
+      screen('restart-button').addEventListener('click',function () { if (currentArena) startArena(currentArena.id); });
+      screen('return-title-button').addEventListener('click',goTitle);
+      screen('next-arena-button').addEventListener('click',function (event) { startArena(event.currentTarget.getAttribute('data-next')); });
+      screen('replay-button').addEventListener('click',function () { if (currentArena) startArena(currentArena.id); });
+      screen('complete-map-button').addEventListener('click',function () { openWorldMap('title'); });
+      var journalTabs=document.querySelectorAll('.journal-tab');
+      for (var tabIndex=0;tabIndex<journalTabs.length;tabIndex++) {
+        journalTabs[tabIndex].addEventListener('click',function (event) {
+          journalFilter=event.currentTarget.getAttribute('data-filter');
+          for (var ti=0;ti<journalTabs.length;ti++) journalTabs[ti].classList.toggle('active',journalTabs[ti]===event.currentTarget);
+          renderJournal();
+        });
+      }
+      window.addEventListener('keydown',function (event) {
+        var direction=keyDirection(event.key);
+        if (direction) { event.preventDefault(); keys[direction]=true; }
+        if (event.key==='z'||event.key==='Z'||event.key==='Enter'||event.key===' ') { event.preventDefault(); guardedAction(event); }
+        if (event.key==='x'||event.key==='X'||event.key==='Escape') {
+          event.preventDefault();
+          if (activeScreen==='game') pauseGame();
+          else if (activeScreen==='worldMap'||activeScreen==='journal'||activeScreen==='pause') closeOverlay();
+        }
+        if (event.key==='m'||event.key==='M') { event.preventDefault(); if (activeScreen==='game') openWorldMap('game'); }
+        if (event.key==='j'||event.key==='J') { event.preventDefault(); if (activeScreen==='game') openJournal('game'); }
+      });
+      window.addEventListener('keyup',function (event) {
+        var direction=keyDirection(event.key);
+        if (direction) keys[direction]=false;
+      });
+      window.addEventListener('resize',resize,{passive:true});
+      window.addEventListener('blur',function () { keys.left=keys.right=keys.up=keys.down=false; });
+
+      function frame(now) {
+        if (!lastFrame) lastFrame=now;
+        var dt=Math.min(.05,(now-lastFrame)/1000);
+        lastFrame=now;
+        elapsed=now;
+        updateGame(dt,now);
+        scheduleMusic();
+        render(now);
+        requestAnimationFrame(frame);
+      }
+      async function boot() {
+        resize();
+        try {
+          await loadAssets();
+          await new Promise(function (resolve) { setTimeout(resolve,420); });
+          screen('music-toggle').textContent='MUSIC: '+(musicEnabled?'ON':'OFF');
+          showDedication();
+          requestAnimationFrame(frame);
+        } catch (error) {
+          loadNote.textContent='The artwork could not finish loading. Please reopen the complete build.';
+          loadFill.style.width='100%';
+          loadFill.style.background='#8f4150';
+        }
+      }
+      boot();
+      if ('serviceWorker' in navigator) window.addEventListener('load',function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    })();
+  </script>
+</body>
+</html>
