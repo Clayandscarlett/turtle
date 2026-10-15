@@ -7,3 +7,9 @@ R4 preserves the main dashboard and repairs committed playback-session restorati
 Each ZIP includes its complete prebuilt images, SHA-256 image manifest and automatic USB installer. Verify the adjacent `.zip.sha256` file before extraction. `source/` contains review/overlay files rather than a full project checkout.
 
 No physical phone was attached to the cloud environment. Host tests/builds do not establish live HTTPS, physical audio, FPS, charging or three-hour battery life. Earlier ZIPs remain available for comparison and recovery.
+
+## Terminal-only nano 7 research tools
+
+`N9_Nano7_Terminal_Kit.zip` contains Mac M1 Terminal instructions, a checked headless Ghidra launcher, firmware inventory/range-extraction helpers, evidence annotation, and bounded disassembly/reference/pseudocode exports. Verify its adjacent `.zip.sha256` before extraction, then read `terminal-kit/README.md` from Terminal.
+
+The tools were exercised with real Ghidra 12.1.4 on original test fixtures in the cloud. This is a research kit, not a new phone firmware release or an Apple firmware port. It includes no Apple image or keys. The dashboard and R4 firmware remain unchanged.
