@@ -13,51 +13,61 @@ The product constraints remain: dashboard unchanged, no physical Home/volume
 buttons required for normal operation, volume in Settings -> Sound, and existing
 approved Cree wording as the translation authority.
 
-## 1. Install the native Mac tools
+## 1. Install directly on the Mac M1
 
-Run in the Mac's ordinary Terminal shell, not a serial monitor. Exit an open
-serial monitor with Control+] first. These commands target an M1/Apple Silicon
-Mac. Password input for `sudo` is handled in Terminal.
+Use the Mac's ordinary Terminal shell. The direct installer bypasses Homebrew's
+Xorg downloads and timeout-handling failure on the observed macOS 14.6.1 setup.
+It installs a private toolchain below `~/nano7-research`, using verified Ghidra
+12.1.4, Temurin ARM64 JDK 21.0.12.1, and Gradle 9.7.1 release archives.
 
 ```sh
-/usr/bin/arch -arm64 /bin/bash <<'NANO_SETUP'
-set -e
-if [ ! -x /opt/homebrew/bin/brew ]; then
-  sudo -v && NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
-eval "$(/opt/homebrew/bin/brew shellenv)"
-brew install ghidra python ripgrep
-NANO_SETUP
-eval "$(/opt/homebrew/bin/brew shellenv)"
+curl -fL --connect-timeout 15 --max-time 120 https://raw.githubusercontent.com/Clayandscarlett/turtle/n9-firmware-download/install-ghidra-m1.sh -o "$HOME/nano7-install.sh" &&
+/bin/bash "$HOME/nano7-install.sh"
 ```
 
-Homebrew's **formula** handles Ghidra's JDK and native Mac components. The
-official multi-platform Ghidra 12.1.4 ZIP includes Linux/Windows native binaries,
-but its Mac native decompiler must be built separately. Using Homebrew avoids
-that additional manual build. Do not substitute `brew install --cask ghidra`.
+The script checks the existing Apple Command Line Tools, downloads archives with
+pinned SHA-256 checksums, builds Ghidra's native components, installs this kit,
+and runs a real headless test on our original fixture. Downloads total roughly
+900 MB. Progress and errors are saved in `~/nano7-research/logs/ghidra-direct-*`.
+The final success message is `READY: Ghidra is configured for Terminal-only analysis.`
 
-The launcher selects the installed formula's actual JDK, checks compatibility,
-requires native ARM64 Java and the Mac ARM64 decompiler, closes standard input,
-and forces Java headless mode. Missing prerequisites cause an explicit error.
+No Homebrew reinstall, system Java replacement, `sudo`, GUI installer, or phone
+flashing is performed. Existing software remains installed. Mac compilation and
+the final fixture test execute on your Mac; they cannot be claimed complete by
+cloud tests. If the script stops, paste its final error lines into the chat.
+
+The official Ghidra ZIP ships Linux/Windows native components. The installer uses
+the distribution's documented Gradle native build to produce Mac ARM64
+`build/os/mac_arm_64` binaries. Its C/C++ sources are included; it does not need
+Xorg, a separate parser-generator installation, or the Homebrew dependency tree.
+
+The installer writes `~/nano7-research/toolchain.env` with plain absolute paths.
+The helpers parse those two keys as data; they never execute/source that file.
+Environment overrides still work. Existing complete Homebrew installations remain
+supported when no direct-install configuration was selected.
+
+A successful direct installation already performs Step 2 and the tool check
+below. Continue at Step 3 when an actual Apple firmware image is available.
 
 ## 2. Download and verify this kit from Terminal
 
 ```sh
 mkdir -p "$HOME/nano7-research"
 cd "$HOME/nano7-research"
-curl -fL https://raw.githubusercontent.com/Clayandscarlett/turtle/n9-firmware-download/N9_Nano7_Terminal_Kit.zip -o N9_Nano7_Terminal_Kit.zip
-curl -fL https://raw.githubusercontent.com/Clayandscarlett/turtle/n9-firmware-download/N9_Nano7_Terminal_Kit.zip.sha256 -o N9_Nano7_Terminal_Kit.zip.sha256
-shasum -a 256 -c N9_Nano7_Terminal_Kit.zip.sha256
+curl -fL https://raw.githubusercontent.com/Clayandscarlett/turtle/n9-firmware-download/N9_Nano7_Terminal_Kit_R2.zip -o N9_Nano7_Terminal_Kit_R2.zip
+curl -fL https://raw.githubusercontent.com/Clayandscarlett/turtle/n9-firmware-download/N9_Nano7_Terminal_Kit_R2.zip.sha256 -o N9_Nano7_Terminal_Kit_R2.zip.sha256
+shasum -a 256 -c N9_Nano7_Terminal_Kit_R2.zip.sha256
 ```
 
 Proceed only when the checksum says `OK`:
 
 ```sh
-unzip -o N9_Nano7_Terminal_Kit.zip
+unzip -o N9_Nano7_Terminal_Kit_R2.zip
 python3 terminal-kit/nano7.py init
 bash terminal-kit/bin/ghidra-headless --show-config
 ```
 
+For manual kit updates, the commands above require an already configured toolchain.
 The config check prints tool versions and paths, without opening a window.
 The kit uses only Python's standard library; no pip packages are required.
 

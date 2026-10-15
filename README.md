@@ -10,6 +10,8 @@ No physical phone was attached to the cloud environment. Host tests/builds do no
 
 ## Terminal-only nano 7 research tools
 
-`N9_Nano7_Terminal_Kit.zip` contains Mac M1 Terminal instructions, a checked headless Ghidra launcher, firmware inventory/range-extraction helpers, evidence annotation, and bounded disassembly/reference/pseudocode exports. Verify its adjacent `.zip.sha256` before extraction, then read `terminal-kit/README.md` from Terminal.
+`N9_Nano7_Terminal_Kit_R2.zip` contains Mac M1 Terminal instructions, a checked headless Ghidra launcher, firmware inventory/range-extraction helpers, evidence annotation, and bounded disassembly/reference/pseudocode exports. Verify its adjacent `.zip.sha256` before extraction, then read `terminal-kit/README.md` from Terminal.
 
 The tools were exercised with real Ghidra 12.1.4 on original test fixtures in the cloud. This is a research kit, not a new phone firmware release or an Apple firmware port. It includes no Apple image or keys. The dashboard and R4 firmware remain unchanged.
+
+For the observed macOS 14 Homebrew download/timeout failure, `install-ghidra-m1.sh` installs a private ARM64 JDK, verified Ghidra/Gradle releases, builds native components using existing Apple compiler tools, configures the R2 helpers, and tests headless decompilation. It bypasses Homebrew dependencies and does not flash the phone. Mac compilation/test run on the user’s Mac; cloud validation is documented in the kit.
