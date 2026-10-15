@@ -1,5 +1,9 @@
-# N9 firmware download
+# N9 firmware downloads
 
-N9_Firmware.zip contains the application and battery diagnostic candidate, its verified flash images, the flashing script, and the application and battery reports. No physical phone was flashed or tested. Three-hour battery runtime and sustained hardware 30 FPS are unverified.
+Current reliability build: **N9_Media_Reliability_R4.zip** (`1.1.9-media-reliability-r4`).
 
-Download the ZIP using the file page’s Download raw file button.
+R4 preserves the main dashboard and repairs committed playback-session restoration, recoverable library/stat saves, stale media rows after rescans and audiobook remaining-time bounds. It includes R3 TLS and reconnect changes. Read RELIABILITY_R4.md for exact tests and remaining limits, and PRODUCT_STANDARD.md for the ongoing product target.
+
+Each ZIP includes its complete prebuilt images, SHA-256 image manifest and automatic USB installer. Verify the adjacent `.zip.sha256` file before extraction. `source/` contains review/overlay files rather than a full project checkout.
+
+No physical phone was attached to the cloud environment. Host tests/builds do not establish live HTTPS, physical audio, FPS, charging or three-hour battery life. Earlier ZIPs remain available for comparison and recovery.
