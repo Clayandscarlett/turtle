@@ -1,8 +1,8 @@
 # N9 firmware downloads
 
-Current reliability build: **N9_Media_Reliability_R4.zip** (`1.1.9-media-reliability-r4`).
+Current reliability build: **N9_Media_Reliability_R5.zip** (`1.1.9-media-reliability-r5`).
 
-R4 preserves the main dashboard and repairs committed playback-session restoration, recoverable library/stat saves, stale media rows after rescans and audiobook remaining-time bounds. It includes R3 TLS and reconnect changes. Read RELIABILITY_R4.md for exact tests and remaining limits, and PRODUCT_STANDARD.md for the ongoing product target.
+R5 fixes wrong-file selection from an open Track List after rescans, stale scrub gestures seeking a changed track, and null writes on Music thumbnail allocation failure. The dashboard, fonts and visual styles are preserved. It carries the R4 persistence fixes and existing R3 TLS code. Read RELIABILITY_R5.md for exact checks and limits, FLASHING_MAC_R5.md for all-Terminal installation, and PRODUCT_STANDARD.md for the ongoing target.
 
 Each ZIP includes its complete prebuilt images, SHA-256 image manifest and automatic USB installer. Verify the adjacent `.zip.sha256` file before extraction. `source/` contains review/overlay files rather than a full project checkout.
 
